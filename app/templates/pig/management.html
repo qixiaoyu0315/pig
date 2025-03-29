@@ -123,7 +123,10 @@
                 </div>
             </div>
             <div class="card-body pb-0">
-                <form method="GET" action="/pig/management" class="mb-3">
+                <form method="GET" action="/pig/management" class="mb-3" id="filterForm">
+                    <!-- 分页参数隐藏字段，默认第一页 -->
+                    <input type="hidden" name="page" value="1" id="page_field">
+                    
                     <div class="row align-items-end g-3">
                         <div class="col-md-3">
                             <label for="keyword" class="form-label">搜索耳标号</label>
@@ -262,19 +265,59 @@
                 </div>
             </div>
             <div class="card-footer">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">下一页</a>
-                        </li>
-                    </ul>
-                </nav>
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="text-muted mb-0">共 {{ total_count }} 条记录，当前显示第 {{ current_page }}/{{ total_pages }} 页</p>
+                    </div>
+                    <div class="col-md-6">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-end mb-0">
+                                <!-- 上一页 -->
+                                <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page={{ current_page - 1 }}" {% if current_page == 1 %}tabindex="-1" aria-disabled="true"{% endif %}>上一页</a>
+                                </li>
+                                
+                                <!-- 页码 -->
+                                {% set start_page = [current_page - 2, 1] | max %}
+                                {% set end_page = [start_page + 4, total_pages] | min %}
+                                {% set start_page = [end_page - 4, 1] | max %}
+                                
+                                {% if start_page > 1 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page=1">1</a>
+                                </li>
+                                {% if start_page > 2 %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                                {% endif %}
+                                
+                                {% for page_num in range(start_page, end_page + 1) %}
+                                <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page={{ page_num }}">{{ page_num }}</a>
+                                </li>
+                                {% endfor %}
+                                
+                                {% if end_page < total_pages %}
+                                {% if end_page < total_pages - 1 %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page={{ total_pages }}">{{ total_pages }}</a>
+                                </li>
+                                {% endif %}
+                                
+                                <!-- 下一页 -->
+                                <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page={{ current_page + 1 }}" {% if current_page == total_pages %}tabindex="-1" aria-disabled="true"{% endif %}>下一页</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -604,6 +647,37 @@
 <script>
     // 全局变量，用于存储当前正在编辑的猪ID
     let currentPigId = null;
+    
+    // 添加分页逻辑，处理页面跳转
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取所有分页链接
+        const pageLinks = document.querySelectorAll('.pagination .page-link:not(.disabled)');
+        
+        // 为每个分页链接添加点击事件
+        pageLinks.forEach(link => {
+            if (!link.hasAttribute('aria-disabled')) {
+                link.addEventListener('click', function(e) {
+                    // 阻止默认点击行为
+                    e.preventDefault();
+                    
+                    // 获取链接的href属性值
+                    const href = this.getAttribute('href');
+                    if (href) {
+                        // 跳转到指定链接
+                        window.location.href = href;
+                    }
+                });
+            }
+        });
+        
+        // 提交筛选表单时重置页码为1
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            filterForm.addEventListener('submit', function() {
+                document.getElementById('page_field').value = 1;
+            });
+        }
+    });
     
     // 查看母猪详情
     function viewPigDetails(pigId) {

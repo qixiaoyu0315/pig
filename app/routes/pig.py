@@ -25,6 +25,8 @@ async def pig_management(
     status: Optional[str] = None,
     health_status: Optional[str] = None,
     pen_id: Optional[int] = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db), 
     user = Depends(get_current_user)
 ):
@@ -50,21 +52,31 @@ async def pig_management(
     if pen_id:
         query = query.filter(Pig.pen_id == pen_id)
     
-    # 获取猪只数据
-    pigs = query.all()
+    # 计算总记录数
+    total_count = query.count()
+    
+    # 计算总页数
+    total_pages = (total_count + page_size - 1) // page_size
+    
+    # 限制页码范围
+    page = min(max(1, page), max(1, total_pages))
+    
+    # 获取分页数据
+    pigs = query.order_by(Pig.entry_date.desc()).offset((page - 1) * page_size).limit(page_size).all()
     
     # 统计各种状态的猪只数量
+    all_pigs = query.all()
     status_counts = {}
     for status in ["正常", "妊娠", "哺乳", "分娩", "休息", "治疗", "淘汰"]:
-        status_counts[status] = len([p for p in pigs if p.status == status])
+        status_counts[status] = len([p for p in all_pigs if p.status == status])
     
     # 统计健康状态
     health_counts = {}
     for status in ["健康", "待观察", "治疗中", "隔离中"]:
-        health_counts[status] = len([p for p in pigs if p.health_status == status])
+        health_counts[status] = len([p for p in all_pigs if p.health_status == status])
     
     # 获取最近添加的猪只
-    recent_pigs = sorted(pigs, key=lambda x: x.entry_date, reverse=True)[:5]
+    recent_pigs = sorted(all_pigs, key=lambda x: x.entry_date, reverse=True)[:5]
     
     return templates.TemplateResponse("pig/management.html", {
         "request": request,
@@ -76,11 +88,14 @@ async def pig_management(
         "status_counts": status_counts,
         "health_counts": health_counts,
         "recent_pigs": recent_pigs,
-        "total_count": len(pigs),
+        "total_count": total_count,
         "keyword": keyword,
         "filter_status": status,
         "filter_health_status": health_status,
-        "filter_pen_id": pen_id
+        "filter_pen_id": pen_id,
+        "current_page": page,
+        "total_pages": total_pages,
+        "page_size": page_size
     })
 
 # 新增API：获取单个母猪详情
