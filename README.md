@@ -13,7 +13,7 @@
 
 1. 克隆仓库
 ```
-git clone https://github.com/yourusername/pig-management.git
+git clone https://github.com/qixiaoyu0315/pig.git
 cd pig-management
 ```
 
