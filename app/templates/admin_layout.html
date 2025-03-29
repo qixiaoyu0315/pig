@@ -10,10 +10,10 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
+    <div class="container-fluid g-0">
+        <div class="row g-0">
             <!-- 侧边栏 -->
-            <div class="col-md-2 bg-dark text-white sidebar">
+            <div class="col-auto bg-dark text-white sidebar">
                 <div class="d-flex align-items-center py-3 px-2 border-bottom">
                     <img src="/static/img/pig.svg" alt="Logo" class="me-2" width="30" height="30">
                     <h5 class="m-0">母猪管理系统</h5>
@@ -25,7 +25,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#pigSubmenu">
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#pigSubmenu" role="button" aria-expanded="{% if '/pig/' in request.url.path %}true{% else %}false{% endif %}">
                             <span><i class="bi bi-building me-2"></i>猪舍管理</span>
                             <i class="bi bi-chevron-down small"></i>
                         </a>
@@ -68,7 +68,7 @@
             </div>
             
             <!-- 主内容区 -->
-            <div class="col-md-10 ms-auto main-content">
+            <div class="col main-content">
                 <!-- 顶部导航栏 -->
                 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-2">
                     <div class="container-fluid">
@@ -87,7 +87,7 @@
                                     <li><a class="dropdown-item" href="#">个人信息</a></li>
                                     <li><a class="dropdown-item" href="#">修改密码</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/login">退出登录</a></li>
+                                    <li><a class="dropdown-item" href="/logout">退出登录</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -104,18 +104,44 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 根据当前页面URL自动展开菜单
+        // 保存菜单折叠状态到本地存储
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname;
+            const menuToggle = document.querySelector('[data-bs-toggle="collapse"]');
+            const pigSubmenu = document.getElementById('pigSubmenu');
             
-            // 如果当前路径包含/pig/，则自动展开猪舍管理菜单
+            // 从localStorage读取菜单状态
+            const loadMenuState = function() {
+                const storedState = localStorage.getItem('pigSubmenuState');
+                return storedState ? JSON.parse(storedState) : { expanded: false };
+            };
+            
+            // 保存菜单状态到localStorage
+            const saveMenuState = function(isExpanded) {
+                localStorage.setItem('pigSubmenuState', JSON.stringify({ expanded: isExpanded }));
+            };
+            
+            // 当前页面是猪舍管理页面，自动展开菜单
             if (currentPath.includes('/pig/')) {
-                const pigSubmenu = document.getElementById('pigSubmenu');
-                if (pigSubmenu && bootstrap.Collapse) {
-                    new bootstrap.Collapse(pigSubmenu, {
-                        toggle: true
-                    });
+                saveMenuState(true);
+            }
+            
+            // 非猪舍管理页面，但记忆中应该展开的情况
+            if (!currentPath.includes('/pig/') && loadMenuState().expanded && pigSubmenu) {
+                if (bootstrap.Collapse) {
+                    new bootstrap.Collapse(pigSubmenu, { toggle: true });
                 }
+            }
+            
+            // 监听菜单折叠/展开事件
+            if (pigSubmenu) {
+                pigSubmenu.addEventListener('shown.bs.collapse', function() {
+                    saveMenuState(true);
+                });
+                
+                pigSubmenu.addEventListener('hidden.bs.collapse', function() {
+                    saveMenuState(false);
+                });
             }
         });
     </script>
