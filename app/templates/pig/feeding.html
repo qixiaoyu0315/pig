@@ -1,0 +1,253 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}采食信息 - 母猪管理系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="输入猪只编号或圈舍编号">
+                            <input type="date" class="form-control">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="bi bi-search"></i> 搜索
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-primary active">今日</button>
+                            <button type="button" class="btn btn-outline-primary">本周</button>
+                            <button type="button" class="btn btn-outline-primary">本月</button>
+                            <button type="button" class="btn btn-outline-primary">自定义</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="mb-2">265 <small>kg</small></h3>
+                <p class="text-muted mb-0">今日总采食量</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="mb-2">11.04 <small>kg</small></h3>
+                <p class="text-muted mb-0">平均采食量/猪</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="mb-2">24</h3>
+                <p class="text-muted mb-0">采食猪只总数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="mb-2">18.2 <small>kg</small></h3>
+                <p class="text-muted mb-0">最高采食量</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>采食详情</span>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-2">
+                        <i class="bi bi-printer"></i> 打印
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-download"></i> 导出数据
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>猪只编号</th>
+                            <th>圈舍位置</th>
+                            <th>早餐采食量(kg)</th>
+                            <th>午餐采食量(kg)</th>
+                            <th>晚餐采食量(kg)</th>
+                            <th>总采食量(kg)</th>
+                            <th>采食状态</th>
+                            <th>剩余量(kg)</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PIG001</td>
+                            <td>圈舍1-A区</td>
+                            <td>5.2</td>
+                            <td>6.8</td>
+                            <td>6.2</td>
+                            <td>18.2</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>0.3</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG002</td>
+                            <td>圈舍2-B区</td>
+                            <td>4.8</td>
+                            <td>5.5</td>
+                            <td>5.0</td>
+                            <td>15.3</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>0.6</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG003</td>
+                            <td>圈舍1-C区</td>
+                            <td>3.5</td>
+                            <td>4.2</td>
+                            <td>3.8</td>
+                            <td>11.5</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>0.9</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG004</td>
+                            <td>圈舍3-A区</td>
+                            <td>4.2</td>
+                            <td>5.1</td>
+                            <td>4.8</td>
+                            <td>14.1</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>0.4</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG005</td>
+                            <td>圈舍2-A区</td>
+                            <td>2.1</td>
+                            <td>2.8</td>
+                            <td>2.5</td>
+                            <td>7.4</td>
+                            <td><span class="badge bg-danger">异常</span></td>
+                            <td>3.2</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG006</td>
+                            <td>圈舍3-B区</td>
+                            <td>4.5</td>
+                            <td>4.8</td>
+                            <td>4.6</td>
+                            <td>13.9</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>0.5</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG007</td>
+                            <td>圈舍1-D区</td>
+                            <td>4.0</td>
+                            <td>4.3</td>
+                            <td>4.2</td>
+                            <td>12.5</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>0.8</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG008</td>
+                            <td>圈舍4-A区</td>
+                            <td>3.2</td>
+                            <td>3.5</td>
+                            <td>3.0</td>
+                            <td>9.7</td>
+                            <td><span class="badge bg-warning">偏低</span></td>
+                            <td>1.8</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG009</td>
+                            <td>圈舍4-B区</td>
+                            <td>3.8</td>
+                            <td>4.2</td>
+                            <td>4.0</td>
+                            <td>12.0</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>0.5</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PIG010</td>
+                            <td>圈舍5-A区</td>
+                            <td>4.2</td>
+                            <td>4.5</td>
+                            <td>4.3</td>
+                            <td>13.0</td>
+                            <td><span class="badge bg-success">正常</span></td>
+                            <td>0.4</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <span class="text-muted">显示 1 到 10，共 24 条记录</span>
+                    </div>
+                    <div class="col-md-8">
+                        <ul class="pagination justify-content-end mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

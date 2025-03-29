@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.routes import auth, home
+from app.routes import auth, home, pig
 from app.database import engine
 from app.models import user
 
@@ -17,6 +17,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # 包含路由
 app.include_router(auth.router, tags=["auth"])
 app.include_router(home.router, tags=["home"])
+app.include_router(pig.router, tags=["pig"])
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,0 +1,311 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}母猪管理 - 母猪管理系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="输入猪只编号或标识进行搜索">
+                            <input type="text" class="form-control" placeholder="输入圈舍编号或位置搜索">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="bi bi-search"></i> 搜索
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="date" class="form-control">
+                            <select class="form-select">
+                                <option selected>状态筛选</option>
+                                <option>怀孕</option>
+                                <option>哺乳</option>
+                                <option>空怀</option>
+                                <option>休息</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> 新增
+                </button>
+                <button type="button" class="btn btn-success">
+                    <i class="bi bi-pencil"></i> 修改
+                </button>
+                <button type="button" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> 删除
+                </button>
+            </div>
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-info text-white">
+                    <i class="bi bi-arrow-right-circle"></i> 转圈
+                </button>
+                <button type="button" class="btn btn-warning text-dark">
+                    <i class="bi bi-card-checklist"></i> 体检
+                </button>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary">
+                    <i class="bi bi-cloud-download"></i> 导出
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                母猪管理列表
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th width="40">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="select-all">
+                                </div>
+                            </th>
+                            <th>猪只编号</th>
+                            <th>品种</th>
+                            <th>年龄</th>
+                            <th>体重(kg)</th>
+                            <th>圈舍位置</th>
+                            <th>当前状态</th>
+                            <th>生产状况</th>
+                            <th>入场日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG001</td>
+                            <td>长白</td>
+                            <td>2.5岁</td>
+                            <td>186</td>
+                            <td>圈舍1-A区</td>
+                            <td><span class="badge bg-success">健康</span></td>
+                            <td>怀孕中(75天)</td>
+                            <td>2022-01-10</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG002</td>
+                            <td>大约克</td>
+                            <td>3岁</td>
+                            <td>192</td>
+                            <td>圈舍2-B区</td>
+                            <td><span class="badge bg-success">健康</span></td>
+                            <td>哺乳中(15天)</td>
+                            <td>2022-01-15</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG003</td>
+                            <td>杜洛克</td>
+                            <td>1.8岁</td>
+                            <td>165</td>
+                            <td>圈舍1-C区</td>
+                            <td><span class="badge bg-warning">观察中</span></td>
+                            <td>空怀</td>
+                            <td>2022-03-05</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG004</td>
+                            <td>长白</td>
+                            <td>2.2岁</td>
+                            <td>175</td>
+                            <td>圈舍3-A区</td>
+                            <td><span class="badge bg-success">健康</span></td>
+                            <td>配种待确认</td>
+                            <td>2022-02-18</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG005</td>
+                            <td>大约克</td>
+                            <td>3.5岁</td>
+                            <td>195</td>
+                            <td>圈舍2-A区</td>
+                            <td><span class="badge bg-danger">需治疗</span></td>
+                            <td>空怀</td>
+                            <td>2021-11-20</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG006</td>
+                            <td>长白</td>
+                            <td>1.5岁</td>
+                            <td>150</td>
+                            <td>圈舍3-B区</td>
+                            <td><span class="badge bg-success">健康</span></td>
+                            <td>怀孕中(30天)</td>
+                            <td>2022-04-10</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG007</td>
+                            <td>杜洛克</td>
+                            <td>2岁</td>
+                            <td>170</td>
+                            <td>圈舍1-D区</td>
+                            <td><span class="badge bg-success">健康</span></td>
+                            <td>哺乳中(5天)</td>
+                            <td>2022-01-30</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG008</td>
+                            <td>长白</td>
+                            <td>2.8岁</td>
+                            <td>180</td>
+                            <td>圈舍4-A区</td>
+                            <td><span class="badge bg-warning">观察中</span></td>
+                            <td>怀孕中(95天)</td>
+                            <td>2021-12-15</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG009</td>
+                            <td>大约克</td>
+                            <td>1.2岁</td>
+                            <td>140</td>
+                            <td>圈舍4-B区</td>
+                            <td><span class="badge bg-success">健康</span></td>
+                            <td>空怀</td>
+                            <td>2022-05-01</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>PIG010</td>
+                            <td>长白</td>
+                            <td>3.2岁</td>
+                            <td>190</td>
+                            <td>圈舍5-A区</td>
+                            <td><span class="badge bg-success">健康</span></td>
+                            <td>怀孕中(50天)</td>
+                            <td>2021-10-20</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <span class="text-muted">显示 1 到 10，共 24 条记录</span>
+                    </div>
+                    <div class="col-md-8">
+                        <ul class="pagination justify-content-end mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('select-all').addEventListener('change', function() {
+    let checkboxes = document.querySelectorAll('tbody .form-check-input');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+  });
+</script>
+{% endblock %} 

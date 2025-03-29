@@ -1,0 +1,348 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}控制界面 - 母猪管理系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-hdd-rack"></i> 系统控制面板</span>
+                <div>
+                    <button class="btn btn-sm btn-light me-2">
+                        <i class="bi bi-diagram-3"></i> 设备拓扑
+                    </button>
+                    <button class="btn btn-sm btn-light">
+                        <i class="bi bi-arrow-repeat"></i> 刷新状态
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>自动喂食系统</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input control-switch" type="checkbox" checked data-target="feeding">
+                                </div>
+                            </div>
+                            <div class="text-success">
+                                <i class="bi bi-check-circle-fill"></i> 正常运行中
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>环境控制系统</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input control-switch" type="checkbox" checked data-target="environment">
+                                </div>
+                            </div>
+                            <div class="text-success">
+                                <i class="bi bi-check-circle-fill"></i> 正常运行中
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>饮水系统</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input control-switch" type="checkbox" checked data-target="water">
+                                </div>
+                            </div>
+                            <div class="text-success">
+                                <i class="bi bi-check-circle-fill"></i> 正常运行中
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>监控系统</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input control-switch" type="checkbox" checked data-target="monitor">
+                                </div>
+                            </div>
+                            <div class="text-success">
+                                <i class="bi bi-check-circle-fill"></i> 正常运行中
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-thermometer-half"></i> 环境控制
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">温度设置 (°C)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" value="25">
+                            <span class="input-group-text">°C</span>
+                            <button class="btn btn-primary">应用</button>
+                        </div>
+                        <div class="form-text">当前温度: 26.5°C (平均)</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">湿度设置 (%)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" value="65">
+                            <span class="input-group-text">%</span>
+                            <button class="btn btn-primary">应用</button>
+                        </div>
+                        <div class="form-text">当前湿度: 63.2% (平均)</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">通风系统</label>
+                    <select class="form-select" id="ventilationMode">
+                        <option value="auto" selected>自动模式</option>
+                        <option value="manual">手动模式</option>
+                        <option value="scheduled">定时模式</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">通风强度</label>
+                    <input type="range" class="form-range" min="0" max="100" value="60" id="ventilationPower">
+                    <div class="d-flex justify-content-between">
+                        <span>最小</span>
+                        <span id="ventilationValue">60%</span>
+                        <span>最大</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="autoAdjust" checked>
+                        <label class="form-check-label" for="autoAdjust">根据天气自动调整环境参数</label>
+                    </div>
+                </div>
+                <button class="btn btn-success">保存设置</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-droplet-half"></i> 饮水与消毒控制
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">饮水供应模式</label>
+                        <select class="form-select">
+                            <option selected>持续供应</option>
+                            <option>定时供应</option>
+                            <option>按需供应</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">水质状态</label>
+                        <div class="alert alert-success py-2 mb-0">
+                            水质良好 (最近检测: 2023-05-19)
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">消毒系统</label>
+                    <div class="input-group">
+                        <select class="form-select">
+                            <option>关闭</option>
+                            <option>低频率</option>
+                            <option selected>中频率</option>
+                            <option>高频率</option>
+                        </select>
+                        <button class="btn btn-primary">应用</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">定时消毒计划</label>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>区域</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>08:00</td>
+                                <td>全部区域</td>
+                                <td><span class="badge bg-success">已启用</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger">停用</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>14:00</td>
+                                <td>通道区域</td>
+                                <td><span class="badge bg-success">已启用</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger">停用</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>20:00</td>
+                                <td>全部区域</td>
+                                <td><span class="badge bg-success">已启用</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger">停用</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> 添加计划
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-camera-video"></i> 监控中心
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <div class="bg-dark text-white text-center py-5">
+                                    <i class="bi bi-camera-video" style="font-size: 3rem;"></i>
+                                    <div>摄像头 1 - 主入口</div>
+                                </div>
+                                <div class="d-flex justify-content-around p-2">
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="bi bi-play-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-arrows-fullscreen"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-gear"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <div class="bg-dark text-white text-center py-5">
+                                    <i class="bi bi-camera-video" style="font-size: 3rem;"></i>
+                                    <div>摄像头 2 - 圈舍1</div>
+                                </div>
+                                <div class="d-flex justify-content-around p-2">
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="bi bi-play-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-arrows-fullscreen"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-gear"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <div class="bg-dark text-white text-center py-5">
+                                    <i class="bi bi-camera-video" style="font-size: 3rem;"></i>
+                                    <div>摄像头 3 - 圈舍2</div>
+                                </div>
+                                <div class="d-flex justify-content-around p-2">
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="bi bi-play-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-arrows-fullscreen"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-gear"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <div class="bg-dark text-white text-center py-5">
+                                    <i class="bi bi-camera-video" style="font-size: 3rem;"></i>
+                                    <div>摄像头 4 - 圈舍3</div>
+                                </div>
+                                <div class="d-flex justify-content-around p-2">
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="bi bi-play-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-arrows-fullscreen"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-gear"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <button class="btn btn-primary me-2">
+                        <i class="bi bi-grid-3x3"></i> 多屏查看
+                    </button>
+                    <button class="btn btn-success me-2">
+                        <i class="bi bi-camera"></i> 拍摄快照
+                    </button>
+                    <button class="btn btn-info text-white me-2">
+                        <i class="bi bi-record-circle"></i> 开始录像
+                    </button>
+                    <button class="btn btn-warning text-dark">
+                        <i class="bi bi-box-arrow-in-down"></i> 查看历史录像
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // 通风系统滑块控制
+  const ventilationPower = document.getElementById('ventilationPower');
+  const ventilationValue = document.getElementById('ventilationValue');
+  
+  ventilationPower.addEventListener('input', function() {
+    ventilationValue.textContent = this.value + '%';
+  });
+  
+  // 控制开关
+  const controlSwitches = document.querySelectorAll('.control-switch');
+  controlSwitches.forEach(switchEl => {
+    switchEl.addEventListener('change', function() {
+      const system = this.getAttribute('data-target');
+      const status = this.checked ? '启用' : '停用';
+      alert(`${system}系统已${status}`);
+    });
+  });
+</script>
+{% endblock %} 

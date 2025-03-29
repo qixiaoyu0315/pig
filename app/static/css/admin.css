@@ -1,0 +1,97 @@
+/* 管理界面样式 */
+body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background-color: #f5f8fa;
+}
+
+.sidebar {
+    min-height: 100vh;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 16.666667%;
+    z-index: 100;
+}
+
+.sidebar .nav-link {
+    padding: 0.75rem 1rem;
+    color: #f8f9fa;
+    opacity: 0.75;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover, 
+.sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+}
+
+.main-content {
+    padding-left: 16.666667%;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #edf2f7;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+.table {
+    color: #495057;
+}
+
+.table thead th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    border-color: #edf2f7;
+}
+
+.btn {
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+}
+
+.btn-primary {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgb(59 130 246 / 25%);
+    border-color: #3b82f6;
+}
+
+/* 分页样式 */
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-link {
+    color: #3b82f6;
+    border: 1px solid #e2e8f0;
+    margin: 0 2px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+} 

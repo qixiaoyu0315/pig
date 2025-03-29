@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title }} - 母猪管理系统{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/css/admin.css" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 bg-dark text-white sidebar">
+                <div class="d-flex align-items-center py-3 px-2 border-bottom">
+                    <img src="/static/img/pig.svg" alt="Logo" class="me-2" width="30" height="30">
+                    <h5 class="m-0">母猪管理系统</h5>
+                </div>
+                <ul class="nav flex-column pt-3">
+                    <li class="nav-item">
+                        <a class="nav-link text-white {% if request.url.path == '/home' %}active{% endif %}" href="/home">
+                            <i class="bi bi-house-door me-2"></i>首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {% if request.url.path == '/pig/management' %}active{% endif %}" href="/pig/management">
+                            <i class="bi bi-collection me-2"></i>母猪管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {% if request.url.path == '/pig/feeding' %}active{% endif %}" href="/pig/feeding">
+                            <i class="bi bi-clipboard-data me-2"></i>采食信息
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {% if request.url.path == '/pig/feeding-settings' %}active{% endif %}" href="/pig/feeding-settings">
+                            <i class="bi bi-gear me-2"></i>下料设置
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {% if request.url.path == '/pig/daily-summary' %}active{% endif %}" href="/pig/daily-summary">
+                            <i class="bi bi-bar-chart me-2"></i>每日汇总
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {% if request.url.path == '/pig/alerts' %}active{% endif %}" href="/pig/alerts">
+                            <i class="bi bi-exclamation-triangle me-2"></i>报警信息
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {% if request.url.path == '/pig/control' %}active{% endif %}" href="/pig/control">
+                            <i class="bi bi-toggles me-2"></i>控制界面
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 ms-auto main-content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-2">
+                    <div class="container-fluid">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="/home">首页</a></li>
+                            {% block breadcrumb %}
+                            <li class="breadcrumb-item active">{{ page_title }}</li>
+                            {% endblock %}
+                        </ol>
+                        <div class="d-flex align-items-center">
+                            <div class="dropdown">
+                                <a class="btn btn-sm btn-outline-secondary dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i> {{ user.username }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="#">个人信息</a></li>
+                                    <li><a class="dropdown-item" href="#">修改密码</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/login">退出登录</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- 页面内容 -->
+                <div class="container-fluid py-3">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

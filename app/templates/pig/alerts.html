@@ -1,0 +1,334 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}报警信息 - 母猪管理系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-1 text-center">
+                        <i class="bi bi-exclamation-triangle-fill" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <div class="col-md-11">
+                        <h4 class="mb-1">3号圈舍温度异常</h4>
+                        <p class="mb-0">当前温度: 32°C，超过阈值: 30°C，持续时间: 20分钟</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-danger mb-2">1</h3>
+                <p class="text-muted mb-0">紧急报警</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-warning mb-2">3</h3>
+                <p class="text-muted mb-0">重要报警</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-info mb-2">5</h3>
+                <p class="text-muted mb-0">一般报警</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-success mb-2">12</h3>
+                <p class="text-muted mb-0">已处理报警</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>报警过滤</span>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                    <label class="form-check-label" for="autoRefresh">自动刷新</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="搜索报警信息">
+                            <input type="date" class="form-control">
+                            <button class="btn btn-primary" type="button">
+                                <i class="bi bi-search"></i> 搜索
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <select class="form-select">
+                                <option selected>所有报警</option>
+                                <option>紧急报警</option>
+                                <option>重要报警</option>
+                                <option>一般报警</option>
+                                <option>已处理</option>
+                            </select>
+                            <select class="form-select">
+                                <option selected>所有类型</option>
+                                <option>温度异常</option>
+                                <option>湿度异常</option>
+                                <option>供电异常</option>
+                                <option>喂食异常</option>
+                                <option>健康异常</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>报警列表</span>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-2">
+                        <i class="bi bi-bell-slash"></i> 全部静音
+                    </button>
+                    <button class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-check-all"></i> 批量处理
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th width="40">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="selectAll">
+                                </div>
+                            </th>
+                            <th>报警时间</th>
+                            <th>报警类型</th>
+                            <th>报警等级</th>
+                            <th>位置</th>
+                            <th>详情</th>
+                            <th>持续时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-danger">
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 15:40:10</td>
+                            <td>温度异常</td>
+                            <td><span class="badge bg-danger">紧急</span></td>
+                            <td>圈舍3-区域</td>
+                            <td>温度过高 (32°C)</td>
+                            <td>20分钟</td>
+                            <td>未处理</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-success">处理</button>
+                            </td>
+                        </tr>
+                        <tr class="table-warning">
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 14:15:22</td>
+                            <td>采食异常</td>
+                            <td><span class="badge bg-warning">重要</span></td>
+                            <td>PIG005</td>
+                            <td>采食量低于正常标准的50%</td>
+                            <td>3小时</td>
+                            <td>未处理</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-success">处理</button>
+                            </td>
+                        </tr>
+                        <tr class="table-warning">
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 13:50:45</td>
+                            <td>饲料不足</td>
+                            <td><span class="badge bg-warning">重要</span></td>
+                            <td>圈舍2</td>
+                            <td>料槽余量低于20%</td>
+                            <td>1小时</td>
+                            <td>未处理</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-success">处理</button>
+                            </td>
+                        </tr>
+                        <tr class="table-warning">
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 11:22:30</td>
+                            <td>健康异常</td>
+                            <td><span class="badge bg-warning">重要</span></td>
+                            <td>PIG008</td>
+                            <td>体温偏高 (39.8°C)</td>
+                            <td>30分钟</td>
+                            <td>已处理</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-secondary">关闭</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 10:05:12</td>
+                            <td>湿度异常</td>
+                            <td><span class="badge bg-info">一般</span></td>
+                            <td>圈舍1-B区</td>
+                            <td>湿度偏低 (45%)</td>
+                            <td>15分钟</td>
+                            <td>未处理</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-success">处理</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 09:30:40</td>
+                            <td>饮水异常</td>
+                            <td><span class="badge bg-info">一般</span></td>
+                            <td>圈舍4-全区</td>
+                            <td>饮水量偏低</td>
+                            <td>2小时</td>
+                            <td>处理中</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-success">完成</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 08:15:53</td>
+                            <td>投喂设备</td>
+                            <td><span class="badge bg-info">一般</span></td>
+                            <td>圈舍2-C区</td>
+                            <td>投喂设备延迟响应</td>
+                            <td>5分钟</td>
+                            <td>已处理</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-secondary">关闭</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 07:40:22</td>
+                            <td>门禁异常</td>
+                            <td><span class="badge bg-info">一般</span></td>
+                            <td>圈舍3-入口</td>
+                            <td>门禁系统未正确关闭</td>
+                            <td>3分钟</td>
+                            <td>已处理</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-secondary">关闭</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>2023-05-20 06:50:11</td>
+                            <td>网络异常</td>
+                            <td><span class="badge bg-info">一般</span></td>
+                            <td>监控中心</td>
+                            <td>网络连接不稳定</td>
+                            <td>2分钟</td>
+                            <td>已处理</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">详情</button>
+                                <button class="btn btn-sm btn-outline-secondary">关闭</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <span class="text-muted">显示 1 到 9，共 21 条记录</span>
+                    </div>
+                    <div class="col-md-8">
+                        <ul class="pagination justify-content-end mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('selectAll').addEventListener('change', function() {
+    let checkboxes = document.querySelectorAll('tbody .form-check-input');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+  });
+</script>
+{% endblock %} 

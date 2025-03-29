@@ -36,7 +36,11 @@ async def home_page(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     
-    return templates.TemplateResponse("home.html", {"request": request, "user": user})
+    return templates.TemplateResponse("home.html", {
+        "request": request, 
+        "user": user,
+        "page_title": "首页"
+    })
 
 @router.get("/", response_class=HTMLResponse)
 async def root(request: Request):

@@ -1,0 +1,217 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}下料设置 - 母猪管理系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>下料总览</span>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-hdd"></i> 备份配置
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-check2-all"></i> 全部应用
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 mb-3">
+                            <h4 class="mb-0">3</h4>
+                            <small class="text-muted">投喂次数/天</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 mb-3">
+                            <h4 class="mb-0">06:00 / 12:00 / 18:00</h4>
+                            <small class="text-muted">默认投喂时间</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 mb-3">
+                            <h4 class="mb-0">5</h4>
+                            <small class="text-muted">投喂组数</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 mb-3">
+                            <h4 class="text-success mb-0">正常</h4>
+                            <small class="text-muted">系统状态</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                投喂时间设置
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">早餐投喂时间</label>
+                    <input type="time" class="form-control" value="06:00">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">午餐投喂时间</label>
+                    <input type="time" class="form-control" value="12:00">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">晚餐投喂时间</label>
+                    <input type="time" class="form-control" value="18:00">
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="autoAdjust" checked>
+                    <label class="form-check-label" for="autoAdjust">根据季节自动调整投喂时间</label>
+                </div>
+                <button class="btn btn-primary">保存时间设置</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                饲料配比设置
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">默认饲料配方</label>
+                    <select class="form-select">
+                        <option selected>标准配方 A-1</option>
+                        <option>怀孕期配方 B-2</option>
+                        <option>哺乳期配方 C-3</option>
+                        <option>保健配方 D-4</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">玉米比例 (%)</label>
+                    <input type="number" class="form-control" value="60">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">豆粕比例 (%)</label>
+                    <input type="number" class="form-control" value="25">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">麸皮比例 (%)</label>
+                    <input type="number" class="form-control" value="10">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">添加剂比例 (%)</label>
+                    <input type="number" class="form-control" value="5">
+                </div>
+                <button class="btn btn-primary">保存配比设置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>下料计划设置</span>
+                <button class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg"></i> 添加计划
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>计划名称</th>
+                            <th>适用圈舍</th>
+                            <th>猪只状态</th>
+                            <th>每次投喂量(kg)</th>
+                            <th>投喂次数</th>
+                            <th>每日总量(kg)</th>
+                            <th>投喂方式</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>标准饲喂计划</td>
+                            <td>所有圈舍</td>
+                            <td>正常</td>
+                            <td>5.0</td>
+                            <td>3</td>
+                            <td>15.0</td>
+                            <td>自动</td>
+                            <td><span class="badge bg-success">启用</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
+                                <button class="btn btn-sm btn-outline-danger">停用</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>怀孕期饲喂计划</td>
+                            <td>1区，2区</td>
+                            <td>怀孕</td>
+                            <td>5.5</td>
+                            <td>3</td>
+                            <td>16.5</td>
+                            <td>自动</td>
+                            <td><span class="badge bg-success">启用</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
+                                <button class="btn btn-sm btn-outline-danger">停用</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>哺乳期饲喂计划</td>
+                            <td>3区</td>
+                            <td>哺乳</td>
+                            <td>6.0</td>
+                            <td>3</td>
+                            <td>18.0</td>
+                            <td>自动</td>
+                            <td><span class="badge bg-success">启用</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
+                                <button class="btn btn-sm btn-outline-danger">停用</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>疗养期饲喂计划</td>
+                            <td>4区</td>
+                            <td>恢复</td>
+                            <td>4.0</td>
+                            <td>3</td>
+                            <td>12.0</td>
+                            <td>自动</td>
+                            <td><span class="badge bg-success">启用</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
+                                <button class="btn btn-sm btn-outline-danger">停用</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>特殊饲喂计划</td>
+                            <td>5区</td>
+                            <td>特殊照顾</td>
+                            <td>3.5</td>
+                            <td>4</td>
+                            <td>14.0</td>
+                            <td>半自动</td>
+                            <td><span class="badge bg-warning">测试中</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
+                                <button class="btn btn-sm btn-outline-success">启用</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
