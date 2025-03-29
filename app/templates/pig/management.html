@@ -2,297 +2,319 @@
 
 {% block title %}母猪管理 - 母猪管理系统{% endblock %}
 
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/home">首页</a></li>
+<li class="breadcrumb-item active">母猪管理</li>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-9">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="输入猪只编号或标识进行搜索">
-                            <input type="text" class="form-control" placeholder="输入圈舍编号或位置搜索">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="bi bi-search"></i> 搜索
-                                </button>
+                <div class="d-flex justify-content-between mb-3">
+                    <h5 class="card-title">母猪概况</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addPigModal">
+                            <i class="bi bi-plus-circle"></i> 添加母猪
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-upload"></i> 导入数据
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="border rounded p-3 text-center">
+                            <h1 class="display-4 mb-0">{{ total_count }}</h1>
+                            <p class="mb-0 text-muted">总猪只数</p>
+                        </div>
+                    </div>
+                    <div class="col-md-9 col-sm-6">
+                        <div class="border rounded p-3">
+                            <h5 class="mb-3 text-center">猪群状态分布</h5>
+                            <div class="row">
+                                {% for status, count in status_counts.items() %}
+                                <div class="col-md-2 col-4 text-center mb-2">
+                                    <div class="p-2 rounded
+                                        {% if status == '妊娠' %}bg-info text-white
+                                        {% elif status == '哺乳' %}bg-success text-white
+                                        {% elif status == '分娩' %}bg-primary text-white
+                                        {% elif status == '休息' %}bg-warning
+                                        {% elif status == '治疗' %}bg-danger text-white
+                                        {% elif status == '淘汰' %}bg-secondary text-white
+                                        {% else %}bg-light
+                                        {% endif %}">
+                                        <h5 class="mb-0">{{ count }}</h5>
+                                        <small>{{ status }}</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="input-group">
-                            <input type="date" class="form-control">
-                            <select class="form-select">
-                                <option selected>状态筛选</option>
-                                <option>怀孕</option>
-                                <option>哺乳</option>
-                                <option>空怀</option>
-                                <option>休息</option>
-                            </select>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mb-3">
-    <div class="col-md-12">
-        <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group me-2">
-                <button type="button" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> 新增
-                </button>
-                <button type="button" class="btn btn-success">
-                    <i class="bi bi-pencil"></i> 修改
-                </button>
-                <button type="button" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> 删除
-                </button>
-            </div>
-            <div class="btn-group me-2">
-                <button type="button" class="btn btn-info text-white">
-                    <i class="bi bi-arrow-right-circle"></i> 转圈
-                </button>
-                <button type="button" class="btn btn-warning text-dark">
-                    <i class="bi bi-card-checklist"></i> 体检
-                </button>
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn btn-secondary">
-                    <i class="bi bi-cloud-download"></i> 导出
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
+<!-- 猪舍信息 -->
+<div class="row mb-4">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                母猪管理列表
+                <h5 class="mb-0">猪舍信息</h5>
             </div>
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th width="40">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="select-all">
+            <div class="card-body">
+                <div class="row">
+                    {% for house in pig_houses %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>{{ house.name }}</span>
+                                <span class="badge bg-primary">{{ house.current_count }}/{{ house.capacity }}</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-1"><strong>位置:</strong> {{ house.location }}</p>
+                                <p class="mb-1"><strong>负责人:</strong> {{ house.manager }}</p>
+                                <p class="mb-1"><strong>温度:</strong> {{ house.temperature|round(1) }}°C</p>
+                                <p class="mb-0"><strong>湿度:</strong> {{ house.humidity|round(1) }}%</p>
+                                
+                                <!-- 使用率进度条 -->
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>使用率</span>
+                                        <span>{{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar 
+                                            {% if house.current_count / house.capacity < 0.5 %}bg-success
+                                            {% elif house.current_count / house.capacity < 0.8 %}bg-info
+                                            {% elif house.current_count / house.capacity < 1 %}bg-warning
+                                            {% else %}bg-danger{% endif %}" 
+                                            role="progressbar" 
+                                            style="width: {{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}%">
+                                        </div>
+                                    </div>
                                 </div>
-                            </th>
-                            <th>猪只编号</th>
-                            <th>品种</th>
-                            <th>年龄</th>
-                            <th>体重(kg)</th>
-                            <th>圈舍位置</th>
-                            <th>当前状态</th>
-                            <th>生产状况</th>
-                            <th>入场日期</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG001</td>
-                            <td>长白</td>
-                            <td>2.5岁</td>
-                            <td>186</td>
-                            <td>圈舍1-A区</td>
-                            <td><span class="badge bg-success">健康</span></td>
-                            <td>怀孕中(75天)</td>
-                            <td>2022-01-10</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG002</td>
-                            <td>大约克</td>
-                            <td>3岁</td>
-                            <td>192</td>
-                            <td>圈舍2-B区</td>
-                            <td><span class="badge bg-success">健康</span></td>
-                            <td>哺乳中(15天)</td>
-                            <td>2022-01-15</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG003</td>
-                            <td>杜洛克</td>
-                            <td>1.8岁</td>
-                            <td>165</td>
-                            <td>圈舍1-C区</td>
-                            <td><span class="badge bg-warning">观察中</span></td>
-                            <td>空怀</td>
-                            <td>2022-03-05</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG004</td>
-                            <td>长白</td>
-                            <td>2.2岁</td>
-                            <td>175</td>
-                            <td>圈舍3-A区</td>
-                            <td><span class="badge bg-success">健康</span></td>
-                            <td>配种待确认</td>
-                            <td>2022-02-18</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG005</td>
-                            <td>大约克</td>
-                            <td>3.5岁</td>
-                            <td>195</td>
-                            <td>圈舍2-A区</td>
-                            <td><span class="badge bg-danger">需治疗</span></td>
-                            <td>空怀</td>
-                            <td>2021-11-20</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG006</td>
-                            <td>长白</td>
-                            <td>1.5岁</td>
-                            <td>150</td>
-                            <td>圈舍3-B区</td>
-                            <td><span class="badge bg-success">健康</span></td>
-                            <td>怀孕中(30天)</td>
-                            <td>2022-04-10</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG007</td>
-                            <td>杜洛克</td>
-                            <td>2岁</td>
-                            <td>170</td>
-                            <td>圈舍1-D区</td>
-                            <td><span class="badge bg-success">健康</span></td>
-                            <td>哺乳中(5天)</td>
-                            <td>2022-01-30</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG008</td>
-                            <td>长白</td>
-                            <td>2.8岁</td>
-                            <td>180</td>
-                            <td>圈舍4-A区</td>
-                            <td><span class="badge bg-warning">观察中</span></td>
-                            <td>怀孕中(95天)</td>
-                            <td>2021-12-15</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG009</td>
-                            <td>大约克</td>
-                            <td>1.2岁</td>
-                            <td>140</td>
-                            <td>圈舍4-B区</td>
-                            <td><span class="badge bg-success">健康</span></td>
-                            <td>空怀</td>
-                            <td>2022-05-01</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>PIG010</td>
-                            <td>长白</td>
-                            <td>3.2岁</td>
-                            <td>190</td>
-                            <td>圈舍5-A区</td>
-                            <td><span class="badge bg-success">健康</span></td>
-                            <td>怀孕中(50天)</td>
-                            <td>2021-10-20</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                        <span class="text-muted">显示 1 到 10，共 24 条记录</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <ul class="pagination justify-content-end mb-0">
-                            <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 母猪列表 -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">母猪列表</h5>
+                <div class="d-flex">
+                    <div class="input-group me-2" style="width: 300px;">
+                        <input type="text" class="form-control" placeholder="搜索耳标号、状态等...">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                            <i class="bi bi-funnel"></i> 筛选
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                            <li><a class="dropdown-item" href="#">全部状态</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">正常</a></li>
+                            <li><a class="dropdown-item" href="#">妊娠</a></li>
+                            <li><a class="dropdown-item" href="#">哺乳</a></li>
+                            <li><a class="dropdown-item" href="#">分娩</a></li>
+                            <li><a class="dropdown-item" href="#">休息</a></li>
+                            <li><a class="dropdown-item" href="#">治疗</a></li>
                         </ul>
                     </div>
                 </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>耳标号</th>
+                                <th>生日</th>
+                                <th>品种</th>
+                                <th>猪圈</th>
+                                <th>状态</th>
+                                <th>健康状况</th>
+                                <th>体重(kg)</th>
+                                <th>入场日期</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pig in pigs %}
+                            <tr>
+                                <td>{{ pig.ear_tag }}</td>
+                                <td>{{ pig.birth_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ pig.breed }}</td>
+                                <td>
+                                    {% if pig.pen %}
+                                    {{ pig.pen.pen_number }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if pig.status == '妊娠' %}bg-info
+                                        {% elif pig.status == '哺乳' %}bg-success
+                                        {% elif pig.status == '分娩' %}bg-primary
+                                        {% elif pig.status == '休息' %}bg-warning
+                                        {% elif pig.status == '治疗' %}bg-danger
+                                        {% elif pig.status == '淘汰' %}bg-secondary
+                                        {% else %}bg-light text-dark
+                                        {% endif %}">
+                                        {{ pig.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if pig.health_status == '健康' %}bg-success
+                                        {% elif pig.health_status == '待观察' %}bg-warning
+                                        {% elif pig.health_status == '治疗中' %}bg-danger
+                                        {% elif pig.health_status == '隔离中' %}bg-dark
+                                        {% else %}bg-light text-dark
+                                        {% endif %}">
+                                        {{ pig.health_status }}
+                                    </span>
+                                </td>
+                                <td>{{ pig.weight|round(1) }}</td>
+                                <td>{{ pig.entry_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewPigDetails('{{ pig.id }}')">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="editPig('{{ pig.id }}')">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deletePig('{{ pig.id }}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">下一页</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加母猪模态框 -->
+<div class="modal fade" id="addPigModal" tabindex="-1" aria-labelledby="addPigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPigModalLabel">添加母猪</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addPigForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="ear_tag" class="form-label">耳标号*</label>
+                            <input type="text" class="form-control" id="ear_tag" name="ear_tag" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="birth_date" class="form-label">出生日期*</label>
+                            <input type="date" class="form-control" id="birth_date" name="birth_date" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="breed" class="form-label">品种*</label>
+                            <select class="form-select" id="breed" name="breed" required>
+                                <option value="">请选择品种</option>
+                                <option value="大白">大白</option>
+                                <option value="长白">长白</option>
+                                <option value="杜洛克">杜洛克</option>
+                                <option value="皮特兰">皮特兰</option>
+                                <option value="巴克夏">巴克夏</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pen_id" class="form-label">猪圈*</label>
+                            <select class="form-select" id="pen_id" name="pen_id" required>
+                                <option value="">请选择猪圈</option>
+                                {% for pen in pig_pens %}
+                                <option value="{{ pen.id }}">{{ pen.pen_number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">状态*</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="">请选择状态</option>
+                                <option value="正常">正常</option>
+                                <option value="妊娠">妊娠</option>
+                                <option value="哺乳">哺乳</option>
+                                <option value="分娩">分娩</option>
+                                <option value="休息">休息</option>
+                                <option value="治疗">治疗</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="health_status" class="form-label">健康状况*</label>
+                            <select class="form-select" id="health_status" name="health_status" required>
+                                <option value="">请选择健康状况</option>
+                                <option value="健康">健康</option>
+                                <option value="待观察">待观察</option>
+                                <option value="治疗中">治疗中</option>
+                                <option value="隔离中">隔离中</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="weight" class="form-label">体重(kg)*</label>
+                            <input type="number" step="0.1" class="form-control" id="weight" name="weight" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="entry_date" class="form-label">入场日期*</label>
+                            <input type="date" class="form-control" id="entry_date" name="entry_date" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">备注</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="savePig()">保存</button>
             </div>
         </div>
     </div>
@@ -301,11 +323,31 @@
 
 {% block extra_js %}
 <script>
-  document.getElementById('select-all').addEventListener('change', function() {
-    let checkboxes = document.querySelectorAll('tbody .form-check-input');
-    checkboxes.forEach(checkbox => {
-      checkbox.checked = this.checked;
-    });
-  });
+    // 查看猪详情
+    function viewPigDetails(pigId) {
+        alert('查看猪详情: ' + pigId);
+        // 实际实现应该是加载并显示详情
+    }
+    
+    // 编辑猪信息
+    function editPig(pigId) {
+        alert('编辑猪信息: ' + pigId);
+        // 实际实现应该是加载数据到表单并显示编辑模态框
+    }
+    
+    // 删除猪
+    function deletePig(pigId) {
+        if (confirm('确定要删除这头猪吗？这个操作不可撤销。')) {
+            alert('删除猪: ' + pigId);
+            // 实际实现应该是发送请求到服务器
+        }
+    }
+    
+    // 保存新增猪
+    function savePig() {
+        alert('保存猪信息');
+        // 实际实现应该是发送表单数据到服务器
+        $('#addPigModal').modal('hide');
+    }
 </script>
 {% endblock %} 

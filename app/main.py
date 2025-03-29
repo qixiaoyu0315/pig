@@ -1,23 +1,38 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import os
 
-from app.routes import auth, home, pig
-from app.database import engine
-from app.models import user
+from app.routes import home, auth, pig
+from app.db_init import initialize_database
 
-# 创建数据库表
-user.Base.metadata.create_all(bind=engine)
-
-app = FastAPI(title="母猪管理系统")
+app = FastAPI(
+    title="母猪管理系统",
+    description="用于管理养猪场母猪繁育、饲养和健康状况的系统",
+    version="1.0.0"
+)
 
 # 挂载静态文件
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # 包含路由
-app.include_router(auth.router, tags=["auth"])
-app.include_router(home.router, tags=["home"])
-app.include_router(pig.router, tags=["pig"])
+app.include_router(auth.router)
+app.include_router(home.router)
+app.include_router(pig.router)
+
+# 创建模板引擎
+templates = Jinja2Templates(directory="app/templates")
+
+# 初始化数据库
+@app.on_event("startup")
+async def startup_event():
+    # 检查数据库文件是否存在
+    db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "pig_management.db")
+    if not os.path.exists(db_path):
+        # 初始化数据库并填充示例数据
+        initialize_database()
+    else:
+        print("数据库已存在，跳过初始化")
 
 if __name__ == "__main__":
     import uvicorn
