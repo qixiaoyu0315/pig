@@ -116,27 +116,46 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">母猪列表</h5>
                 <div class="d-flex">
-                    <div class="input-group me-2" style="width: 300px;">
-                        <input type="text" class="form-control" placeholder="搜索耳标号、状态等...">
-                        <button class="btn btn-outline-secondary" type="button">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
-                            <i class="bi bi-funnel"></i> 筛选
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-                            <li><a class="dropdown-item" href="#">全部状态</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">正常</a></li>
-                            <li><a class="dropdown-item" href="#">妊娠</a></li>
-                            <li><a class="dropdown-item" href="#">哺乳</a></li>
-                            <li><a class="dropdown-item" href="#">分娩</a></li>
-                            <li><a class="dropdown-item" href="#">休息</a></li>
-                            <li><a class="dropdown-item" href="#">治疗</a></li>
-                        </ul>
-                    </div>
+                    <form method="GET" action="/pig/management" class="d-flex">
+                        <div class="input-group me-2" style="width: 300px;">
+                            <input type="text" class="form-control" name="keyword" placeholder="搜索耳标号" value="{{ keyword or '' }}">
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                        
+                        <select class="form-select me-2" name="status" onchange="this.form.submit()">
+                            <option value="">全部状态</option>
+                            <option value="正常" {% if filter_status == '正常' %}selected{% endif %}>正常</option>
+                            <option value="妊娠" {% if filter_status == '妊娠' %}selected{% endif %}>妊娠</option>
+                            <option value="哺乳" {% if filter_status == '哺乳' %}selected{% endif %}>哺乳</option>
+                            <option value="分娩" {% if filter_status == '分娩' %}selected{% endif %}>分娩</option>
+                            <option value="休息" {% if filter_status == '休息' %}selected{% endif %}>休息</option>
+                            <option value="治疗" {% if filter_status == '治疗' %}selected{% endif %}>治疗</option>
+                            <option value="淘汰" {% if filter_status == '淘汰' %}selected{% endif %}>淘汰</option>
+                        </select>
+                        
+                        <select class="form-select me-2" name="health_status" onchange="this.form.submit()">
+                            <option value="">全部健康状态</option>
+                            <option value="健康" {% if filter_health_status == '健康' %}selected{% endif %}>健康</option>
+                            <option value="待观察" {% if filter_health_status == '待观察' %}selected{% endif %}>待观察</option>
+                            <option value="治疗中" {% if filter_health_status == '治疗中' %}selected{% endif %}>治疗中</option>
+                            <option value="隔离中" {% if filter_health_status == '隔离中' %}selected{% endif %}>隔离中</option>
+                        </select>
+                        
+                        <select class="form-select" name="pen_id" onchange="this.form.submit()">
+                            <option value="">全部猪圈</option>
+                            {% for pen in pig_pens %}
+                            <option value="{{ pen.id }}" {% if filter_pen_id|string == pen.id|string %}selected{% endif %}>{{ pen.pen_number }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                        {% if keyword or filter_status or filter_health_status or filter_pen_id %}
+                        <a href="/pig/management" class="btn btn-outline-secondary ms-2">
+                            <i class="bi bi-x-circle"></i> 清除筛选
+                        </a>
+                        {% endif %}
+                    </form>
                 </div>
             </div>
             <div class="card-body p-0">
@@ -283,6 +302,7 @@
                                 <option value="分娩">分娩</option>
                                 <option value="休息">休息</option>
                                 <option value="治疗">治疗</option>
+                                <option value="淘汰">淘汰</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -299,7 +319,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="weight" class="form-label">体重(kg)*</label>
-                            <input type="number" step="0.1" class="form-control" id="weight" name="weight" required>
+                            <input type="number" step="0.1" min="0" class="form-control" id="weight" name="weight" required>
                         </div>
                         <div class="col-md-6">
                             <label for="entry_date" class="form-label">入场日期*</label>
@@ -314,7 +334,235 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="savePig()">保存</button>
+                <button type="button" class="btn btn-primary" id="saveAddPigBtn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑母猪模态框 -->
+<div class="modal fade" id="editPigModal" tabindex="-1" aria-labelledby="editPigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPigModalLabel">编辑母猪</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editPigForm">
+                    <input type="hidden" id="edit_pig_id" name="pig_id">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="edit_ear_tag" class="form-label">耳标号*</label>
+                            <input type="text" class="form-control" id="edit_ear_tag" name="ear_tag" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_birth_date" class="form-label">出生日期*</label>
+                            <input type="date" class="form-control" id="edit_birth_date" name="birth_date" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="edit_breed" class="form-label">品种*</label>
+                            <select class="form-select" id="edit_breed" name="breed" required>
+                                <option value="">请选择品种</option>
+                                <option value="大白">大白</option>
+                                <option value="长白">长白</option>
+                                <option value="杜洛克">杜洛克</option>
+                                <option value="皮特兰">皮特兰</option>
+                                <option value="巴克夏">巴克夏</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_pen_id" class="form-label">猪圈*</label>
+                            <select class="form-select" id="edit_pen_id" name="pen_id" required>
+                                <option value="">请选择猪圈</option>
+                                {% for pen in pig_pens %}
+                                <option value="{{ pen.id }}">{{ pen.pen_number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="edit_status" class="form-label">状态*</label>
+                            <select class="form-select" id="edit_status" name="status" required>
+                                <option value="">请选择状态</option>
+                                <option value="正常">正常</option>
+                                <option value="妊娠">妊娠</option>
+                                <option value="哺乳">哺乳</option>
+                                <option value="分娩">分娩</option>
+                                <option value="休息">休息</option>
+                                <option value="治疗">治疗</option>
+                                <option value="淘汰">淘汰</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_health_status" class="form-label">健康状况*</label>
+                            <select class="form-select" id="edit_health_status" name="health_status" required>
+                                <option value="">请选择健康状况</option>
+                                <option value="健康">健康</option>
+                                <option value="待观察">待观察</option>
+                                <option value="治疗中">治疗中</option>
+                                <option value="隔离中">隔离中</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="edit_weight" class="form-label">体重(kg)*</label>
+                            <input type="number" step="0.1" min="0" class="form-control" id="edit_weight" name="weight" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_entry_date" class="form-label">入场日期*</label>
+                            <input type="date" class="form-control" id="edit_entry_date" name="entry_date" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_notes" class="form-label">备注</label>
+                        <textarea class="form-control" id="edit_notes" name="notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveEditPigBtn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 查看母猪详情模态框 -->
+<div class="modal fade" id="viewPigModal" tabindex="-1" aria-labelledby="viewPigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewPigModalLabel">母猪详情</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h5>基本信息</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="bg-light" width="35%">耳标号</th>
+                                        <td id="view_ear_tag"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">出生日期</th>
+                                        <td id="view_birth_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">品种</th>
+                                        <td id="view_breed"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">体重(kg)</th>
+                                        <td id="view_weight"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">入场日期</th>
+                                        <td id="view_entry_date"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h5>状态信息</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="bg-light" width="35%">当前状态</th>
+                                        <td id="view_status"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">健康状况</th>
+                                        <td id="view_health_status"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">所在猪圈</th>
+                                        <td id="view_pen"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">备注</th>
+                                        <td id="view_notes"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 饲喂记录 -->
+                <div class="mt-3">
+                    <h5>最近饲喂记录</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>时间</th>
+                                    <th>饲料类型</th>
+                                    <th>饲料量(kg)</th>
+                                    <th>持续(分钟)</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="view_feeding_records">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 健康记录 -->
+                <div class="mt-3">
+                    <h5>最近健康记录</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>日期</th>
+                                    <th>体温(°C)</th>
+                                    <th>诊断</th>
+                                    <th>治疗</th>
+                                </tr>
+                            </thead>
+                            <tbody id="view_health_records">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 繁育记录 -->
+                <div class="mt-3">
+                    <h5>繁育记录</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>配种日期</th>
+                                    <th>预产日期</th>
+                                    <th>实际分娩</th>
+                                    <th>总产仔</th>
+                                    <th>健康产仔</th>
+                                </tr>
+                            </thead>
+                            <tbody id="view_breeding_records">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary edit-from-view">编辑信息</button>
             </div>
         </div>
     </div>
@@ -323,31 +571,248 @@
 
 {% block extra_js %}
 <script>
-    // 查看猪详情
+    // 全局变量，用于存储当前正在编辑的猪ID
+    let currentPigId = null;
+    
+    // 查看母猪详情
     function viewPigDetails(pigId) {
-        alert('查看猪详情: ' + pigId);
-        // 实际实现应该是加载并显示详情
+        // 发送请求获取猪详情
+        fetch(`/pig/detail/${pigId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('获取数据失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 填充基本信息
+                document.getElementById('view_ear_tag').textContent = data.ear_tag;
+                document.getElementById('view_birth_date').textContent = data.birth_date;
+                document.getElementById('view_breed').textContent = data.breed;
+                document.getElementById('view_weight').textContent = data.weight;
+                document.getElementById('view_entry_date').textContent = data.entry_date;
+                document.getElementById('view_status').textContent = data.status;
+                document.getElementById('view_health_status').textContent = data.health_status;
+                document.getElementById('view_pen').textContent = data.pen || '未分配';
+                document.getElementById('view_notes').textContent = data.notes || '';
+                
+                // 填充饲喂记录
+                const feedingRecordsElement = document.getElementById('view_feeding_records');
+                feedingRecordsElement.innerHTML = '';
+                
+                if (data.feeding_records && data.feeding_records.length > 0) {
+                    data.feeding_records.forEach(record => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${record.feed_time}</td>
+                            <td>${record.feed_type || '-'}</td>
+                            <td>${record.feed_amount}</td>
+                            <td>${record.duration || '-'}</td>
+                            <td>${record.feed_status}</td>
+                        `;
+                        feedingRecordsElement.appendChild(tr);
+                    });
+                } else {
+                    feedingRecordsElement.innerHTML = '<tr><td colspan="5" class="text-center">暂无饲喂记录</td></tr>';
+                }
+                
+                // 填充健康记录
+                const healthRecordsElement = document.getElementById('view_health_records');
+                healthRecordsElement.innerHTML = '';
+                
+                if (data.health_records && data.health_records.length > 0) {
+                    data.health_records.forEach(record => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${record.record_date}</td>
+                            <td>${record.temperature || '-'}</td>
+                            <td>${record.diagnosis || '-'}</td>
+                            <td>${record.treatment || '-'}</td>
+                        `;
+                        healthRecordsElement.appendChild(tr);
+                    });
+                } else {
+                    healthRecordsElement.innerHTML = '<tr><td colspan="4" class="text-center">暂无健康记录</td></tr>';
+                }
+                
+                // 填充繁育记录
+                const breedingRecordsElement = document.getElementById('view_breeding_records');
+                breedingRecordsElement.innerHTML = '';
+                
+                if (data.breeding_records && data.breeding_records.length > 0) {
+                    data.breeding_records.forEach(record => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${record.breeding_date || '-'}</td>
+                            <td>${record.expected_farrowing_date || '-'}</td>
+                            <td>${record.actual_farrowing_date || '-'}</td>
+                            <td>${record.total_born || '0'}</td>
+                            <td>${record.born_alive || '0'}</td>
+                        `;
+                        breedingRecordsElement.appendChild(tr);
+                    });
+                } else {
+                    breedingRecordsElement.innerHTML = '<tr><td colspan="5" class="text-center">暂无繁育记录</td></tr>';
+                }
+                
+                // 存储当前猪ID
+                currentPigId = pigId;
+                
+                // 显示详情模态框
+                const viewModal = new bootstrap.Modal(document.getElementById('viewPigModal'));
+                viewModal.show();
+            })
+            .catch(error => {
+                console.error('获取猪只详情失败:', error);
+                alert('获取猪只详情失败，请重试');
+            });
     }
     
-    // 编辑猪信息
+    // 从详情页点击编辑
+    document.querySelector('.edit-from-view').addEventListener('click', function() {
+        // 关闭详情模态框
+        bootstrap.Modal.getInstance(document.getElementById('viewPigModal')).hide();
+        // 打开编辑模态框并填充数据
+        editPig(currentPigId);
+    });
+    
+    // 编辑母猪信息
     function editPig(pigId) {
-        alert('编辑猪信息: ' + pigId);
-        // 实际实现应该是加载数据到表单并显示编辑模态框
+        // 发送请求获取猪详情用于编辑
+        fetch(`/pig/detail/${pigId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('获取数据失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 填充表单字段
+                document.getElementById('edit_pig_id').value = pigId;
+                document.getElementById('edit_ear_tag').value = data.ear_tag;
+                document.getElementById('edit_birth_date').value = data.birth_date;
+                document.getElementById('edit_breed').value = data.breed;
+                document.getElementById('edit_weight').value = data.weight;
+                document.getElementById('edit_status').value = data.status;
+                document.getElementById('edit_health_status').value = data.health_status;
+                document.getElementById('edit_pen_id').value = data.pen_id;
+                document.getElementById('edit_entry_date').value = data.entry_date;
+                document.getElementById('edit_notes').value = data.notes || '';
+                
+                // 显示编辑模态框
+                const editModal = new bootstrap.Modal(document.getElementById('editPigModal'));
+                editModal.show();
+            })
+            .catch(error => {
+                console.error('获取猪只数据失败:', error);
+                alert('获取猪只数据失败，请重试');
+            });
     }
+    
+    // 保存编辑后的母猪信息
+    document.getElementById('saveEditPigBtn').addEventListener('click', function() {
+        const form = document.getElementById('editPigForm');
+        const pigId = document.getElementById('edit_pig_id').value;
+        
+        // 检查表单是否有效
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        // 获取表单数据
+        const formData = new FormData(form);
+        
+        // 发送请求更新猪信息
+        fetch(`/pig/update/${pigId}`, {
+            method: 'PUT',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('更新成功！');
+                // 关闭模态框
+                bootstrap.Modal.getInstance(document.getElementById('editPigModal')).hide();
+                // 刷新页面以显示最新数据
+                window.location.reload();
+            } else {
+                alert(`更新失败: ${data.message}`);
+            }
+        })
+        .catch(error => {
+            console.error('更新猪只信息失败:', error);
+            alert('更新猪只信息失败，请重试');
+        });
+    });
     
     // 删除猪
     function deletePig(pigId) {
-        if (confirm('确定要删除这头猪吗？这个操作不可撤销。')) {
-            alert('删除猪: ' + pigId);
-            // 实际实现应该是发送请求到服务器
+        if (confirm('确定要删除这头猪吗？此操作将同时删除所有相关记录，且不可撤销。')) {
+            // 发送删除请求
+            fetch(`/pig/delete/${pigId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('删除成功！');
+                    // 刷新页面以更新列表
+                    window.location.reload();
+                } else {
+                    alert(`删除失败: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('删除猪只失败:', error);
+                alert('删除猪只失败，请重试');
+            });
         }
     }
     
     // 保存新增猪
-    function savePig() {
-        alert('保存猪信息');
-        // 实际实现应该是发送表单数据到服务器
-        $('#addPigModal').modal('hide');
-    }
+    document.getElementById('saveAddPigBtn').addEventListener('click', function() {
+        const form = document.getElementById('addPigForm');
+        
+        // 检查表单是否有效
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        // 获取表单数据
+        const formData = new FormData(form);
+        
+        // 发送请求添加猪
+        fetch('/pig/add', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('添加成功！');
+                // 关闭模态框
+                bootstrap.Modal.getInstance(document.getElementById('addPigModal')).hide();
+                // 清空表单
+                form.reset();
+                // 刷新页面以显示新数据
+                window.location.reload();
+            } else {
+                alert(`添加失败: ${data.message}`);
+            }
+        })
+        .catch(error => {
+            console.error('添加猪只失败:', error);
+            alert('添加猪只失败，请重试');
+        });
+    });
+    
+    // 添加猪模态框显示时设置今天日期
+    document.getElementById('addPigModal').addEventListener('show.bs.modal', function () {
+        // 设置默认入场日期为今天
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('entry_date').value = today;
+    });
 </script>
 {% endblock %} 

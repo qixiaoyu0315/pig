@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Form, Query
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from typing import Optional, List
 import datetime
@@ -19,7 +19,15 @@ router = APIRouter(
 templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/management", response_class=HTMLResponse)
-async def pig_management(request: Request, db: Session = Depends(get_db), user = Depends(get_current_user)):
+async def pig_management(
+    request: Request, 
+    keyword: Optional[str] = None,
+    status: Optional[str] = None,
+    health_status: Optional[str] = None,
+    pen_id: Optional[int] = None,
+    db: Session = Depends(get_db), 
+    user = Depends(get_current_user)
+):
     """母猪管理页面"""
     # 获取猪舍数据
     pig_houses = db.query(PigHouse).all()
@@ -27,8 +35,23 @@ async def pig_management(request: Request, db: Session = Depends(get_db), user =
     # 获取猪圈数据
     pig_pens = db.query(PigPen).all()
     
-    # 获取猪只数据，按状态统计
-    pigs = db.query(Pig).all()
+    # 构建查询条件
+    query = db.query(Pig)
+    
+    if keyword:
+        query = query.filter(Pig.ear_tag.like(f'%{keyword}%'))
+    
+    if status:
+        query = query.filter(Pig.status == status)
+    
+    if health_status:
+        query = query.filter(Pig.health_status == health_status)
+    
+    if pen_id:
+        query = query.filter(Pig.pen_id == pen_id)
+    
+    # 获取猪只数据
+    pigs = query.all()
     
     # 统计各种状态的猪只数量
     status_counts = {}
@@ -53,8 +76,282 @@ async def pig_management(request: Request, db: Session = Depends(get_db), user =
         "status_counts": status_counts,
         "health_counts": health_counts,
         "recent_pigs": recent_pigs,
-        "total_count": len(pigs)
+        "total_count": len(pigs),
+        "keyword": keyword,
+        "filter_status": status,
+        "filter_health_status": health_status,
+        "filter_pen_id": pen_id
     })
+
+# 新增API：获取单个母猪详情
+@router.get("/detail/{pig_id}", response_class=JSONResponse)
+async def get_pig_detail(pig_id: int, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    """获取单个母猪的详细信息"""
+    pig = db.query(Pig).filter(Pig.id == pig_id).first()
+    
+    if not pig:
+        raise HTTPException(status_code=404, detail="猪只不存在")
+    
+    # 获取喂食记录
+    feeding_records = db.query(FeedingRecord).filter(
+        FeedingRecord.pig_id == pig_id
+    ).order_by(FeedingRecord.feed_time.desc()).limit(5).all()
+    
+    # 获取健康记录
+    health_records = db.query(HealthRecord).filter(
+        HealthRecord.pig_id == pig_id
+    ).order_by(HealthRecord.record_date.desc()).limit(5).all()
+    
+    # 获取繁育记录
+    breeding_records = db.query(BreedingRecord).filter(
+        BreedingRecord.pig_id == pig_id
+    ).order_by(BreedingRecord.breeding_date.desc()).all()
+    
+    # 格式化日期和数据
+    pig_data = {
+        "id": pig.id,
+        "ear_tag": pig.ear_tag,
+        "birth_date": pig.birth_date.strftime("%Y-%m-%d") if pig.birth_date else None,
+        "breed": pig.breed,
+        "gender": pig.gender,
+        "weight": pig.weight,
+        "status": pig.status,
+        "health_status": pig.health_status,
+        "entry_date": pig.entry_date.strftime("%Y-%m-%d") if pig.entry_date else None,
+        "pen": pig.pen.pen_number if pig.pen else None,
+        "pen_id": pig.pen_id,
+        "notes": pig.notes,
+        "feeding_records": [
+            {
+                "feed_time": record.feed_time.strftime("%Y-%m-%d %H:%M"),
+                "feed_amount": record.feed_amount,
+                "feed_type": record.feed_type,
+                "duration": record.duration,
+                "feed_status": record.feed_status
+            } for record in feeding_records
+        ],
+        "health_records": [
+            {
+                "record_date": record.record_date.strftime("%Y-%m-%d"),
+                "temperature": record.temperature,
+                "diagnosis": record.diagnosis,
+                "treatment": record.treatment
+            } for record in health_records
+        ],
+        "breeding_records": [
+            {
+                "breeding_date": record.breeding_date.strftime("%Y-%m-%d") if record.breeding_date else None,
+                "expected_farrowing_date": record.expected_farrowing_date.strftime("%Y-%m-%d") if record.expected_farrowing_date else None,
+                "actual_farrowing_date": record.actual_farrowing_date.strftime("%Y-%m-%d") if record.actual_farrowing_date else None,
+                "total_born": record.total_born,
+                "born_alive": record.born_alive
+            } for record in breeding_records
+        ]
+    }
+    
+    return pig_data
+
+# 新增API：添加母猪
+@router.post("/add", response_class=JSONResponse)
+async def add_pig(
+    ear_tag: str = Form(...),
+    birth_date: str = Form(...),
+    breed: str = Form(...),
+    gender: str = Form("母"),
+    weight: float = Form(...),
+    status: str = Form(...),
+    health_status: str = Form(...),
+    pen_id: int = Form(...),
+    entry_date: str = Form(...),
+    notes: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """添加新的母猪"""
+    # 检查耳标是否已存在
+    existing_pig = db.query(Pig).filter(Pig.ear_tag == ear_tag).first()
+    if existing_pig:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "耳标号已存在"}
+        )
+    
+    # 检查猪圈是否存在
+    pen = db.query(PigPen).filter(PigPen.id == pen_id).first()
+    if not pen:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "所选猪圈不存在"}
+        )
+    
+    # 检查猪圈容量
+    if pen.current_count >= pen.capacity:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "所选猪圈已满"}
+        )
+    
+    # 格式化日期
+    birth_date_obj = datetime.datetime.strptime(birth_date, "%Y-%m-%d")
+    entry_date_obj = datetime.datetime.strptime(entry_date, "%Y-%m-%d")
+    
+    # 创建新母猪
+    new_pig = Pig(
+        ear_tag=ear_tag,
+        birth_date=birth_date_obj,
+        breed=breed,
+        gender=gender,
+        weight=weight,
+        status=status,
+        health_status=health_status,
+        pen_id=pen_id,
+        entry_date=entry_date_obj,
+        notes=notes
+    )
+    
+    db.add(new_pig)
+    
+    # 更新猪圈当前数量
+    pen.current_count += 1
+    
+    # 更新猪舍当前数量
+    pig_house = db.query(PigHouse).filter(PigHouse.id == pen.pig_house_id).first()
+    if pig_house:
+        pig_house.current_count += 1
+    
+    db.commit()
+    
+    return {"success": True, "message": "添加成功", "pig_id": new_pig.id}
+
+# 新增API：更新母猪
+@router.put("/update/{pig_id}", response_class=JSONResponse)
+async def update_pig(
+    pig_id: int,
+    ear_tag: str = Form(...),
+    birth_date: str = Form(...),
+    breed: str = Form(...),
+    weight: float = Form(...),
+    status: str = Form(...),
+    health_status: str = Form(...),
+    pen_id: int = Form(...),
+    entry_date: str = Form(...),
+    notes: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """更新母猪信息"""
+    # 查找母猪
+    pig = db.query(Pig).filter(Pig.id == pig_id).first()
+    if not pig:
+        return JSONResponse(
+            status_code=404,
+            content={"success": False, "message": "猪只不存在"}
+        )
+    
+    # 检查耳标是否已存在（排除当前猪只）
+    existing_pig = db.query(Pig).filter(Pig.ear_tag == ear_tag, Pig.id != pig_id).first()
+    if existing_pig:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "耳标号已存在"}
+        )
+    
+    # 处理猪圈变更
+    old_pen_id = pig.pen_id
+    if pen_id != old_pen_id:
+        # 检查新猪圈是否存在
+        new_pen = db.query(PigPen).filter(PigPen.id == pen_id).first()
+        if not new_pen:
+            return JSONResponse(
+                status_code=400,
+                content={"success": False, "message": "所选猪圈不存在"}
+            )
+        
+        # 检查新猪圈容量
+        if new_pen.current_count >= new_pen.capacity:
+            return JSONResponse(
+                status_code=400,
+                content={"success": False, "message": "所选猪圈已满"}
+            )
+        
+        # 更新旧猪圈数量
+        old_pen = db.query(PigPen).filter(PigPen.id == old_pen_id).first()
+        if old_pen:
+            old_pen.current_count -= 1
+            
+            # 更新旧猪舍数量
+            old_house = db.query(PigHouse).filter(PigHouse.id == old_pen.pig_house_id).first()
+            if old_house:
+                old_house.current_count -= 1
+        
+        # 更新新猪圈数量
+        new_pen.current_count += 1
+        
+        # 更新新猪舍数量
+        new_house = db.query(PigHouse).filter(PigHouse.id == new_pen.pig_house_id).first()
+        if new_house:
+            new_house.current_count += 1
+    
+    # 格式化日期
+    birth_date_obj = datetime.datetime.strptime(birth_date, "%Y-%m-%d")
+    entry_date_obj = datetime.datetime.strptime(entry_date, "%Y-%m-%d")
+    
+    # 更新猪只信息
+    pig.ear_tag = ear_tag
+    pig.birth_date = birth_date_obj
+    pig.breed = breed
+    pig.weight = weight
+    pig.status = status
+    pig.health_status = health_status
+    pig.pen_id = pen_id
+    pig.entry_date = entry_date_obj
+    pig.notes = notes
+    pig.last_update = datetime.datetime.now()
+    
+    db.commit()
+    
+    return {"success": True, "message": "更新成功"}
+
+# 新增API：删除母猪
+@router.delete("/delete/{pig_id}", response_class=JSONResponse)
+async def delete_pig(
+    pig_id: int,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """删除母猪"""
+    # 查找母猪
+    pig = db.query(Pig).filter(Pig.id == pig_id).first()
+    if not pig:
+        return JSONResponse(
+            status_code=404,
+            content={"success": False, "message": "猪只不存在"}
+        )
+    
+    # 获取猪圈信息以便更新计数
+    pen_id = pig.pen_id
+    pen = db.query(PigPen).filter(PigPen.id == pen_id).first()
+    
+    # 删除相关记录
+    db.query(FeedingRecord).filter(FeedingRecord.pig_id == pig_id).delete()
+    db.query(HealthRecord).filter(HealthRecord.pig_id == pig_id).delete()
+    db.query(BreedingRecord).filter(BreedingRecord.pig_id == pig_id).delete()
+    
+    # 删除猪只
+    db.delete(pig)
+    
+    # 更新猪圈数量
+    if pen:
+        pen.current_count = max(0, pen.current_count - 1)
+        
+        # 更新猪舍数量
+        house = db.query(PigHouse).filter(PigHouse.id == pen.pig_house_id).first()
+        if house:
+            house.current_count = max(0, house.current_count - 1)
+    
+    db.commit()
+    
+    return {"success": True, "message": "删除成功"}
 
 @router.get("/feeding", response_class=HTMLResponse)
 async def feeding_info(
@@ -250,39 +547,45 @@ async def alerts(
     if type:
         query = query.filter(Alert.alert_type == type)
     
-    # 获取报警记录
+    # 获取报警并排序
     alerts = query.order_by(Alert.alert_time.desc()).all()
     
-    # 统计各种状态的报警数量
-    status_counts = {}
-    for alert_status in ["未处理", "处理中", "已解决", "已忽略"]:
-        status_counts[alert_status] = len([a for a in alerts if a.status == alert_status])
+    # 获取报警统计信息
+    total_alerts = len(alerts)
     
-    # 统计各级别的报警数量
+    # 按级别统计
     level_counts = {}
-    for alert_level in ["紧急", "重要", "一般"]:
-        level_counts[alert_level] = len([a for a in alerts if a.alert_level == alert_level])
+    for l in ["紧急", "重要", "一般"]:
+        level_counts[l] = len([a for a in alerts if a.alert_level == l])
     
-    # 获取当前存在的报警类型
+    # 按状态统计
+    status_counts = {}
+    for s in ["未处理", "处理中", "已解决", "已忽略"]:
+        status_counts[s] = len([a for a in alerts if a.status == s])
+    
+    # 按类型统计
+    type_counts = {}
     alert_types = set(alert.alert_type for alert in alerts)
+    for t in alert_types:
+        type_counts[t] = len([a for a in alerts if a.alert_type == t])
     
     return templates.TemplateResponse("pig/alerts.html", {
         "request": request,
         "user": user,
         "page_title": "报警信息",
         "alerts": alerts,
-        "status_counts": status_counts,
+        "total_alerts": total_alerts,
         "level_counts": level_counts,
-        "alert_types": sorted(alert_types),
-        "selected_status": status,
-        "selected_level": level,
-        "selected_type": type,
-        "total_count": len(alerts)
+        "status_counts": status_counts,
+        "type_counts": type_counts,
+        "filter_status": status,
+        "filter_level": level,
+        "filter_type": type
     })
 
 @router.get("/control", response_class=HTMLResponse)
 async def control_interface(request: Request, user = Depends(get_current_user)):
-    """控制界面页面"""
+    """控制界面"""
     return templates.TemplateResponse("pig/control.html", {
         "request": request,
         "user": user,
