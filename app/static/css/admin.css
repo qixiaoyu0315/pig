@@ -15,6 +15,8 @@ body {
     font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
     background-color: #f5f5f5;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 /* 侧边栏样式 */
@@ -62,8 +64,10 @@ body {
 .main-content {
     margin-left: var(--sidebar-width);
     padding-top: 0;
+    padding-right: 0;
     min-height: 100vh;
     background-color: #f5f5f5;
+    width: calc(100% - var(--sidebar-width));
 }
 
 /* 确保容器和行没有间隙 */
@@ -71,6 +75,16 @@ body {
 .row.g-0 {
     padding: 0;
     margin: 0;
+    width: 100%;
+}
+
+.container-fluid.g-0 > .row.g-0 {
+    flex-wrap: nowrap;
+}
+
+.container-fluid.py-3 {
+    padding-right: 0;
+    max-width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -82,6 +96,7 @@ body {
     
     .main-content {
         margin-left: 0;
+        width: 100%;
     }
 }
 
