@@ -89,14 +89,15 @@
                                         <span>{{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}%</span>
                                     </div>
                                     <div class="progress" style="height: 10px;">
-                                        <div class="progress-bar 
-                                            {% if house.current_count / house.capacity < 0.5 %}bg-success
-                                            {% elif house.current_count / house.capacity < 0.8 %}bg-info
-                                            {% elif house.current_count / house.capacity < 1 %}bg-warning
-                                            {% else %}bg-danger{% endif %}" 
-                                            role="progressbar" 
-                                            style="width: {{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}%">
-                                        </div>
+                                        {% if house.current_count / house.capacity < 0.5 %}
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}%" aria-valuenow="{{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        {% elif house.current_count / house.capacity < 0.8 %}
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}%" aria-valuenow="{{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        {% elif house.current_count / house.capacity < 1 %}
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}%" aria-valuenow="{{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        {% else %}
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}%" aria-valuenow="{{ (house.current_count / house.capacity * 100)|round(1) if house.capacity > 0 else 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -113,119 +114,149 @@
 <div class="row">
     <div class="col-md-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">母猪列表</h5>
-                <div class="d-flex">
-                    <form method="GET" action="/pig/management" class="d-flex">
-                        <div class="input-group me-2" style="width: 300px;">
-                            <input type="text" class="form-control" name="keyword" placeholder="搜索耳标号" value="{{ keyword or '' }}">
-                            <button class="btn btn-outline-primary" type="submit">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
-                        
-                        <select class="form-select me-2" name="status" onchange="this.form.submit()">
-                            <option value="">全部状态</option>
-                            <option value="正常" {% if filter_status == '正常' %}selected{% endif %}>正常</option>
-                            <option value="妊娠" {% if filter_status == '妊娠' %}selected{% endif %}>妊娠</option>
-                            <option value="哺乳" {% if filter_status == '哺乳' %}selected{% endif %}>哺乳</option>
-                            <option value="分娩" {% if filter_status == '分娩' %}selected{% endif %}>分娩</option>
-                            <option value="休息" {% if filter_status == '休息' %}selected{% endif %}>休息</option>
-                            <option value="治疗" {% if filter_status == '治疗' %}selected{% endif %}>治疗</option>
-                            <option value="淘汰" {% if filter_status == '淘汰' %}selected{% endif %}>淘汰</option>
-                        </select>
-                        
-                        <select class="form-select me-2" name="health_status" onchange="this.form.submit()">
-                            <option value="">全部健康状态</option>
-                            <option value="健康" {% if filter_health_status == '健康' %}selected{% endif %}>健康</option>
-                            <option value="待观察" {% if filter_health_status == '待观察' %}selected{% endif %}>待观察</option>
-                            <option value="治疗中" {% if filter_health_status == '治疗中' %}selected{% endif %}>治疗中</option>
-                            <option value="隔离中" {% if filter_health_status == '隔离中' %}selected{% endif %}>隔离中</option>
-                        </select>
-                        
-                        <select class="form-select" name="pen_id" onchange="this.form.submit()">
-                            <option value="">全部猪圈</option>
-                            {% for pen in pig_pens %}
-                            <option value="{{ pen.id }}" {% if filter_pen_id|string == pen.id|string %}selected{% endif %}>{{ pen.pen_number }}</option>
-                            {% endfor %}
-                        </select>
-                        
-                        {% if keyword or filter_status or filter_health_status or filter_pen_id %}
-                        <a href="/pig/management" class="btn btn-outline-secondary ms-2">
-                            <i class="bi bi-x-circle"></i> 清除筛选
-                        </a>
-                        {% endif %}
-                    </form>
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">母猪列表</h5>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addPigModal">
+                        <i class="bi bi-plus-circle me-1"></i> 添加母猪
+                    </button>
                 </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body pb-0">
+                <form method="GET" action="/pig/management" class="mb-3">
+                    <div class="row align-items-end g-3">
+                        <div class="col-md-3">
+                            <label for="keyword" class="form-label">搜索耳标号</label>
+                            <div class="input-group">
+                                <input type="text" id="keyword" class="form-control" name="keyword" placeholder="输入耳标号" value="{{ keyword or '' }}">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="status" class="form-label">状态筛选</label>
+                            <select id="status" class="form-select" name="status">
+                                <option value="">全部状态</option>
+                                <option value="正常" {% if filter_status == '正常' %}selected{% endif %}>正常</option>
+                                <option value="妊娠" {% if filter_status == '妊娠' %}selected{% endif %}>妊娠</option>
+                                <option value="哺乳" {% if filter_status == '哺乳' %}selected{% endif %}>哺乳</option>
+                                <option value="分娩" {% if filter_status == '分娩' %}selected{% endif %}>分娩</option>
+                                <option value="休息" {% if filter_status == '休息' %}selected{% endif %}>休息</option>
+                                <option value="治疗" {% if filter_status == '治疗' %}selected{% endif %}>治疗</option>
+                                <option value="淘汰" {% if filter_status == '淘汰' %}selected{% endif %}>淘汰</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="health_status" class="form-label">健康状况</label>
+                            <select id="health_status" class="form-select" name="health_status">
+                                <option value="">全部健康状态</option>
+                                <option value="健康" {% if filter_health_status == '健康' %}selected{% endif %}>健康</option>
+                                <option value="待观察" {% if filter_health_status == '待观察' %}selected{% endif %}>待观察</option>
+                                <option value="治疗中" {% if filter_health_status == '治疗中' %}selected{% endif %}>治疗中</option>
+                                <option value="隔离中" {% if filter_health_status == '隔离中' %}selected{% endif %}>隔离中</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="pen_id" class="form-label">猪圈筛选</label>
+                            <select id="pen_id" class="form-select" name="pen_id">
+                                <option value="">全部猪圈</option>
+                                {% for pen in pig_pens %}
+                                <option value="{{ pen.id }}" {% if filter_pen_id|string == pen.id|string %}selected{% endif %}>{{ pen.pen_number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex">
+                                <button type="submit" class="btn btn-primary w-50 me-2">
+                                    <i class="bi bi-filter me-1"></i> 应用筛选
+                                </button>
+                                {% if keyword or filter_status or filter_health_status or filter_pen_id %}
+                                <a href="/pig/management" class="btn btn-outline-secondary w-50">
+                                    <i class="bi bi-x-circle me-1"></i> 清除筛选
+                                </a>
+                                {% else %}
+                                <button type="reset" class="btn btn-outline-secondary w-50">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> 重置
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>耳标号</th>
-                                <th>生日</th>
-                                <th>品种</th>
-                                <th>猪圈</th>
-                                <th>状态</th>
-                                <th>健康状况</th>
-                                <th>体重(kg)</th>
-                                <th>入场日期</th>
-                                <th>操作</th>
+                                <th width="10%">耳标号</th>
+                                <th width="10%">生日</th>
+                                <th width="10%">品种</th>
+                                <th width="10%">猪圈</th>
+                                <th width="10%">状态</th>
+                                <th width="10%">健康状况</th>
+                                <th width="8%">体重(kg)</th>
+                                <th width="12%">入场日期</th>
+                                <th width="20%">操作</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for pig in pigs %}
-                            <tr>
-                                <td>{{ pig.ear_tag }}</td>
-                                <td>{{ pig.birth_date.strftime('%Y-%m-%d') }}</td>
-                                <td>{{ pig.breed }}</td>
-                                <td>
-                                    {% if pig.pen %}
-                                    {{ pig.pen.pen_number }}
-                                    {% else %}
-                                    -
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <span class="badge
-                                        {% if pig.status == '妊娠' %}bg-info
-                                        {% elif pig.status == '哺乳' %}bg-success
-                                        {% elif pig.status == '分娩' %}bg-primary
-                                        {% elif pig.status == '休息' %}bg-warning
-                                        {% elif pig.status == '治疗' %}bg-danger
-                                        {% elif pig.status == '淘汰' %}bg-secondary
-                                        {% else %}bg-light text-dark
-                                        {% endif %}">
-                                        {{ pig.status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge
-                                        {% if pig.health_status == '健康' %}bg-success
-                                        {% elif pig.health_status == '待观察' %}bg-warning
-                                        {% elif pig.health_status == '治疗中' %}bg-danger
-                                        {% elif pig.health_status == '隔离中' %}bg-dark
-                                        {% else %}bg-light text-dark
-                                        {% endif %}">
-                                        {{ pig.health_status }}
-                                    </span>
-                                </td>
-                                <td>{{ pig.weight|round(1) }}</td>
-                                <td>{{ pig.entry_date.strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="viewPigDetails('{{ pig.id }}')">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-secondary" onclick="editPig('{{ pig.id }}')">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deletePig('{{ pig.id }}')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                            {% if pigs %}
+                                {% for pig in pigs %}
+                                <tr>
+                                    <td>{{ pig.ear_tag }}</td>
+                                    <td>{{ pig.birth_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ pig.breed }}</td>
+                                    <td>
+                                        {% if pig.pen %}
+                                        {{ pig.pen.pen_number }}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge
+                                            {% if pig.status == '妊娠' %}bg-info
+                                            {% elif pig.status == '哺乳' %}bg-success
+                                            {% elif pig.status == '分娩' %}bg-primary
+                                            {% elif pig.status == '休息' %}bg-warning
+                                            {% elif pig.status == '治疗' %}bg-danger
+                                            {% elif pig.status == '淘汰' %}bg-secondary
+                                            {% else %}bg-light text-dark
+                                            {% endif %}">
+                                            {{ pig.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge
+                                            {% if pig.health_status == '健康' %}bg-success
+                                            {% elif pig.health_status == '待观察' %}bg-warning
+                                            {% elif pig.health_status == '治疗中' %}bg-danger
+                                            {% elif pig.health_status == '隔离中' %}bg-dark
+                                            {% else %}bg-light text-dark
+                                            {% endif %}">
+                                            {{ pig.health_status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ pig.weight|round(1) }}</td>
+                                    <td>{{ pig.entry_date.strftime('%Y-%m-%d') }}</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary" title="查看详情" onclick="viewPigDetails('{{ pig.id }}')">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" title="编辑信息" onclick="editPig('{{ pig.id }}')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="删除" onclick="deletePig('{{ pig.id }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center py-3">暂无数据{% if keyword or filter_status or filter_health_status or filter_pen_id %}，请尝试清除筛选条件{% endif %}</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
