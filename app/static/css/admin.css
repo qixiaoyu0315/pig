@@ -25,6 +25,34 @@ body {
     opacity: 1;
 }
 
+/* 二级菜单样式 */
+.sidebar .collapse .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.sidebar .collapse .nav-item {
+    margin-left: -0.75rem;
+}
+
+.sidebar .collapse {
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar .nav-link[data-bs-toggle="collapse"] {
+    position: relative;
+}
+
+.sidebar .nav-link[data-bs-toggle="collapse"] .bi-chevron-down {
+    transition: transform 0.3s;
+}
+
+.sidebar .collapse.show + .nav-link[data-bs-toggle="collapse"] .bi-chevron-down,
+.sidebar .nav-link[data-bs-toggle="collapse"][aria-expanded="true"] .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
 .main-content {
     padding-left: 16.666667%;
     min-height: 100vh;

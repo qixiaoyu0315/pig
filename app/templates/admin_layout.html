@@ -25,34 +25,44 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white {% if request.url.path == '/pig/management' %}active{% endif %}" href="/pig/management">
-                            <i class="bi bi-collection me-2"></i>母猪管理
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#pigSubmenu">
+                            <span><i class="bi bi-building me-2"></i>猪舍管理</span>
+                            <i class="bi bi-chevron-down small"></i>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white {% if request.url.path == '/pig/feeding' %}active{% endif %}" href="/pig/feeding">
-                            <i class="bi bi-clipboard-data me-2"></i>采食信息
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white {% if request.url.path == '/pig/feeding-settings' %}active{% endif %}" href="/pig/feeding-settings">
-                            <i class="bi bi-gear me-2"></i>下料设置
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white {% if request.url.path == '/pig/daily-summary' %}active{% endif %}" href="/pig/daily-summary">
-                            <i class="bi bi-bar-chart me-2"></i>每日汇总
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white {% if request.url.path == '/pig/alerts' %}active{% endif %}" href="/pig/alerts">
-                            <i class="bi bi-exclamation-triangle me-2"></i>报警信息
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white {% if request.url.path == '/pig/control' %}active{% endif %}" href="/pig/control">
-                            <i class="bi bi-toggles me-2"></i>控制界面
-                        </a>
+                        <div class="collapse {% if '/pig/' in request.url.path %}show{% endif %}" id="pigSubmenu">
+                            <ul class="nav flex-column ms-3">
+                                <li class="nav-item">
+                                    <a class="nav-link text-white {% if request.url.path == '/pig/management' %}active{% endif %}" href="/pig/management">
+                                        <i class="bi bi-collection me-2"></i>母猪管理
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white {% if request.url.path == '/pig/feeding' %}active{% endif %}" href="/pig/feeding">
+                                        <i class="bi bi-clipboard-data me-2"></i>采食信息
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white {% if request.url.path == '/pig/feeding-settings' %}active{% endif %}" href="/pig/feeding-settings">
+                                        <i class="bi bi-gear me-2"></i>下料设置
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white {% if request.url.path == '/pig/daily-summary' %}active{% endif %}" href="/pig/daily-summary">
+                                        <i class="bi bi-bar-chart me-2"></i>每日汇总
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white {% if request.url.path == '/pig/alerts' %}active{% endif %}" href="/pig/alerts">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>报警信息
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white {% if request.url.path == '/pig/control' %}active{% endif %}" href="/pig/control">
+                                        <i class="bi bi-toggles me-2"></i>控制界面
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -93,6 +103,22 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 根据当前页面URL自动展开菜单
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            
+            // 如果当前路径包含/pig/，则自动展开猪舍管理菜单
+            if (currentPath.includes('/pig/')) {
+                const pigSubmenu = document.getElementById('pigSubmenu');
+                if (pigSubmenu && bootstrap.Collapse) {
+                    new bootstrap.Collapse(pigSubmenu, {
+                        toggle: true
+                    });
+                }
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html> 
