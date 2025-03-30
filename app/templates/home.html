@@ -9,6 +9,24 @@
         width: 100%;
         height: 300px;
     }
+    
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 250px;
+        }
+        
+        .small-card {
+            margin-bottom: 1rem;
+        }
+        
+        .stats-container {
+            font-size: 0.9rem;
+        }
+        
+        .display-4 {
+            font-size: 2.5rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -26,7 +44,7 @@
 
 <!-- 图表展示区域 -->
 <div class="row mb-4">
-    <div class="col-md-6 mb-4">
+    <div class="col-lg-6 col-md-12 mb-4">
         <div class="card h-100">
             <div class="card-header">
                 <span>近7天饲料消耗趋势</span>
@@ -36,7 +54,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6 mb-4">
+    <div class="col-lg-6 col-md-12 mb-4">
         <div class="card h-100">
             <div class="card-header">
                 <span>猪只状态分布</span>
@@ -49,7 +67,7 @@
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-6 mb-4">
+    <div class="col-lg-6 col-md-12 mb-4">
         <div class="card h-100">
             <div class="card-header">
                 <span>背膘厚度分布</span>
@@ -59,7 +77,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6 mb-4">
+    <div class="col-lg-6 col-md-12 mb-4">
         <div class="card h-100">
             <div class="card-header">
                 <span>近24小时环境数据</span>
@@ -72,13 +90,13 @@
 </div>
 
 <div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100 small-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>猪只数量</span>
                 <a href="/pig/management" class="btn btn-sm btn-outline-primary">查看详情</a>
             </div>
-            <div class="card-body text-center">
+            <div class="card-body text-center stats-container">
                 <h1 class="display-4 mb-0">{{ total_pigs }}</h1>
                 <small class="text-muted">正常饲养中的母猪数量</small>
                 <div class="mt-3">
@@ -108,13 +126,13 @@
         </div>
     </div>
     
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100 small-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>饲料消耗</span>
                 <a href="/pig/feeding" class="btn btn-sm btn-outline-primary">查看详情</a>
             </div>
-            <div class="card-body">
+            <div class="card-body stats-container">
                 <h3 class="text-center mb-4">今日消耗：{{ today_feed|round(1) }} kg</h3>
                 <div class="d-flex justify-content-between mb-1">
                     <span>本周消耗</span>
@@ -141,34 +159,34 @@
         </div>
     </div>
     
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
+    <div class="col-lg-4 col-md-12 mb-4">
+        <div class="card h-100 small-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>健康状况</span>
                 <a href="/pig/alerts" class="btn btn-sm btn-outline-primary">查看报警</a>
             </div>
-            <div class="card-body">
+            <div class="card-body stats-container">
                 <div class="row text-center">
                     <div class="col-6 mb-4">
-                        <div class="border rounded p-3">
+                        <div class="border rounded p-2 p-md-3">
                             <h3 class="text-success">{{ healthy_pigs }}</h3>
                             <small class="text-muted">健康</small>
                         </div>
                     </div>
                     <div class="col-6 mb-4">
-                        <div class="border rounded p-3">
+                        <div class="border rounded p-2 p-md-3">
                             <h3 class="text-warning">{{ observe_pigs }}</h3>
                             <small class="text-muted">待观察</small>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="border rounded p-3">
+                        <div class="border rounded p-2 p-md-3">
                             <h3 class="text-danger">{{ treating_pigs }}</h3>
                             <small class="text-muted">需治疗</small>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="border rounded p-3">
+                        <div class="border rounded p-2 p-md-3">
                             <h3>{{ isolated_pigs }}</h3>
                             <small class="text-muted">隔离</small>
                         </div>
@@ -201,45 +219,36 @@
                 最近活动
             </div>
             <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>时间</th>
-                            <th>活动类型</th>
-                            <th>猪只编号</th>
-                            <th>操作人员</th>
-                            <th>详情</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if recent_activities %}
-                            {% for activity in recent_activities %}
-                                <tr>
-                                    <td>{{ (activity.time|string).split('.')[0] }}</td>
-                                    <td>{{ activity.type }}</td>
-                                    <td>{{ activity.subject }}</td>
-                                    <td>{{ activity.operator }}</td>
-                                    <td>{{ activity.details }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
                             <tr>
-                                <td colspan="5" class="text-center">暂无活动记录</td>
+                                <th>时间</th>
+                                <th>活动类型</th>
+                                <th>猪只编号</th>
+                                <th>操作人员</th>
+                                <th>详情</th>
                             </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">下一页</a></li>
-                    </ul>
-                </nav>
+                        </thead>
+                        <tbody>
+                            {% if recent_activities %}
+                                {% for activity in recent_activities %}
+                                    <tr>
+                                        <td>{{ (activity.time|string).split('.')[0] }}</td>
+                                        <td>{{ activity.type }}</td>
+                                        <td>{{ activity.subject }}</td>
+                                        <td>{{ activity.operator }}</td>
+                                        <td>{{ activity.details }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">暂无活动记录</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -249,22 +258,52 @@
 <script>
     // 图表初始化
     document.addEventListener('DOMContentLoaded', function() {
+        // 检测设备是移动端还是桌面端
+        const isMobile = window.innerWidth < 768;
+        
         // 1. 近7天饲料消耗趋势图
-        initFeedChart();
+        initFeedChart(isMobile);
         
         // 2. 猪只状态分布饼图
-        initStatusChart();
+        initStatusChart(isMobile);
         
         // 3. 背膘厚度分布柱状图
-        initBackfatChart();
+        initBackfatChart(isMobile);
         
         // 4. 环境数据折线图
-        initEnvironmentChart();
+        initEnvironmentChart(isMobile);
+        
+        // 窗口大小改变时重新初始化图表
+        window.addEventListener('resize', function() {
+            const newIsMobile = window.innerWidth < 768;
+            if (newIsMobile !== isMobile) {
+                // 屏幕类型改变，重新初始化图表
+                setTimeout(function() {
+                    initFeedChart(newIsMobile);
+                    initStatusChart(newIsMobile);
+                    initBackfatChart(newIsMobile);
+                    initEnvironmentChart(newIsMobile);
+                }, 300);
+            } else {
+                // 只是大小变化，重新调整大小
+                feedChart.resize();
+                statusChart.resize();
+                backfatChart.resize();
+                envChart.resize();
+            }
+        });
     });
     
+    // 全局变量存储图表实例
+    let feedChart, statusChart, backfatChart, envChart;
+    
     // 初始化饲料消耗趋势图
-    function initFeedChart() {
-        var feedChart = echarts.init(document.getElementById('feedChart'));
+    function initFeedChart(isMobile) {
+        if (feedChart) {
+            feedChart.dispose();
+        }
+        
+        feedChart = echarts.init(document.getElementById('feedChart'));
         
         var dates = [];
         var values = [];
@@ -287,11 +326,17 @@
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
-                data: dates
+                data: dates,
+                axisLabel: {
+                    fontSize: isMobile ? 10 : 12
+                }
             },
             yAxis: {
                 type: 'value',
-                name: '饲料(kg)'
+                name: '饲料(kg)',
+                axisLabel: {
+                    fontSize: isMobile ? 10 : 12
+                }
             },
             series: [{
                 name: '饲料消耗',
@@ -308,16 +353,15 @@
         };
         
         feedChart.setOption(option);
-        
-        // 窗口大小变化时，重新调整图表大小
-        window.addEventListener('resize', function() {
-            feedChart.resize();
-        });
     }
     
     // 初始化猪只状态分布饼图
-    function initStatusChart() {
-        var statusChart = echarts.init(document.getElementById('statusChart'));
+    function initStatusChart(isMobile) {
+        if (statusChart) {
+            statusChart.dispose();
+        }
+        
+        statusChart = echarts.init(document.getElementById('statusChart'));
         
         var data = [];
         {% for item in status_chart_data %}
@@ -335,16 +379,21 @@
                 formatter: '{a} <br/>{b}: {c} ({d}%)'
             },
             legend: {
-                orient: 'vertical',
-                right: 10,
-                top: 'center',
+                orient: isMobile ? 'horizontal' : 'vertical',
+                right: isMobile ? 'center' : 10,
+                top: isMobile ? 'bottom' : 'center',
+                itemWidth: isMobile ? 12 : 16,
+                itemHeight: isMobile ? 8 : 12,
+                textStyle: {
+                    fontSize: isMobile ? 10 : 12
+                },
                 data: data.map(function(item) { return item.name; })
             },
             series: [{
                 name: '猪只状态',
                 type: 'pie',
-                radius: ['40%', '70%'],
-                center: ['40%', '50%'],
+                radius: isMobile ? ['30%', '60%'] : ['40%', '70%'],
+                center: ['50%', '45%'],
                 avoidLabelOverlap: false,
                 itemStyle: {
                     borderRadius: 10,
@@ -358,7 +407,7 @@
                 emphasis: {
                     label: {
                         show: true,
-                        fontSize: '18',
+                        fontSize: isMobile ? 14 : 18,
                         fontWeight: 'bold'
                     }
                 },
@@ -370,16 +419,15 @@
         };
         
         statusChart.setOption(option);
-        
-        // 窗口大小变化时，重新调整图表大小
-        window.addEventListener('resize', function() {
-            statusChart.resize();
-        });
     }
     
     // 初始化背膘厚度分布柱状图
-    function initBackfatChart() {
-        var backfatChart = echarts.init(document.getElementById('backfatChart'));
+    function initBackfatChart(isMobile) {
+        if (backfatChart) {
+            backfatChart.dispose();
+        }
+        
+        backfatChart = echarts.init(document.getElementById('backfatChart'));
         
         var ranges = [];
         var counts = [];
@@ -399,7 +447,7 @@
             grid: {
                 left: '3%',
                 right: '4%',
-                bottom: '3%',
+                bottom: isMobile ? '15%' : '3%',
                 containLabel: true
             },
             xAxis: {
@@ -407,12 +455,16 @@
                 data: ranges,
                 axisLabel: {
                     interval: 0,
-                    rotate: 30
+                    rotate: isMobile ? 45 : 30,
+                    fontSize: isMobile ? 10 : 12
                 }
             },
             yAxis: {
                 type: 'value',
-                name: '猪只数量'
+                name: '猪只数量',
+                axisLabel: {
+                    fontSize: isMobile ? 10 : 12
+                }
             },
             series: [{
                 name: '猪只数量',
@@ -425,16 +477,15 @@
         };
         
         backfatChart.setOption(option);
-        
-        // 窗口大小变化时，重新调整图表大小
-        window.addEventListener('resize', function() {
-            backfatChart.resize();
-        });
     }
     
     // 初始化环境数据折线图
-    function initEnvironmentChart() {
-        var envChart = echarts.init(document.getElementById('environmentChart'));
+    function initEnvironmentChart(isMobile) {
+        if (envChart) {
+            envChart.dispose();
+        }
+        
+        envChart = echarts.init(document.getElementById('environmentChart'));
         
         var times = [];
         var temperatures = [];
@@ -451,12 +502,17 @@
                 trigger: 'axis'
             },
             legend: {
-                data: ['温度', '湿度']
+                data: ['温度', '湿度'],
+                top: isMobile ? 'bottom' : 'top',
+                textStyle: {
+                    fontSize: isMobile ? 10 : 12
+                }
             },
             grid: {
                 left: '3%',
                 right: '4%',
-                bottom: '3%',
+                bottom: isMobile ? '15%' : '10%',
+                top: isMobile ? '5%' : '15%',
                 containLabel: true
             },
             xAxis: {
@@ -464,22 +520,29 @@
                 boundaryGap: false,
                 data: times,
                 axisLabel: {
-                    interval: Math.floor(times.length / 8),
-                    rotate: 30
+                    interval: Math.floor(times.length / (isMobile ? 4 : 8)),
+                    rotate: isMobile ? 45 : 30,
+                    fontSize: isMobile ? 10 : 12
                 }
             },
             yAxis: [
                 {
                     type: 'value',
                     name: '温度(°C)',
-                    position: 'left'
+                    position: 'left',
+                    axisLabel: {
+                        fontSize: isMobile ? 10 : 12
+                    }
                 },
                 {
                     type: 'value',
                     name: '湿度(%)',
                     position: 'right',
                     min: 0,
-                    max: 100
+                    max: 100,
+                    axisLabel: {
+                        fontSize: isMobile ? 10 : 12
+                    }
                 }
             ],
             series: [
@@ -506,11 +569,6 @@
         };
         
         envChart.setOption(option);
-        
-        // 窗口大小变化时，重新调整图表大小
-        window.addEventListener('resize', function() {
-            envChart.resize();
-        });
     }
 </script>
 {% endblock %}

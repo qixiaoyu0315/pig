@@ -2,22 +2,59 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}{{ page_title }} - 母猪管理系统{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/static/css/admin.css" rel="stylesheet">
     {% block head %}{% endblock %}
     {% block extra_css %}{% endblock %}
+    <style>
+        /* 移动端优化样式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+                padding-top: 56px;
+            }
+            
+            .mobile-nav {
+                display: flex !important;
+            }
+            
+            .card {
+                margin-bottom: 15px;
+            }
+            
+            .chart-container {
+                height: 250px !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid g-0">
         <div class="row g-0">
             <!-- 侧边栏 -->
-            <div class="col-auto bg-dark text-white sidebar">
-                <div class="d-flex align-items-center py-3 px-2 border-bottom">
-                    <img src="/static/img/pig.svg" alt="Logo" class="me-2" width="30" height="30">
-                    <h5 class="m-0">母猪管理系统</h5>
+            <div class="col-auto bg-dark text-white sidebar" id="sidebar">
+                <div class="d-flex align-items-center justify-content-between py-3 px-2 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <img src="/static/img/pig.svg" alt="Logo" class="me-2" width="30" height="30">
+                        <h5 class="m-0">母猪管理系统</h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white d-md-none" aria-label="Close" id="closeSidebar"></button>
                 </div>
                 <ul class="nav flex-column pt-3">
                     <li class="nav-item">
@@ -71,7 +108,27 @@
             <!-- 主内容区 -->
             <div class="col main-content">
                 <!-- 顶部导航栏 -->
-                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-2">
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-2 fixed-top mobile-nav d-md-none">
+                    <div class="container-fluid">
+                        <button type="button" class="btn btn-sm" id="toggleSidebar">
+                            <i class="bi bi-list fs-4"></i>
+                        </button>
+                        <span class="navbar-brand mb-0 h1">{{ page_title }}</span>
+                        <div class="dropdown">
+                            <a class="btn btn-sm dropdown-toggle" href="#" role="button" id="mobileUserMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileUserMenu">
+                                <li><a class="dropdown-item" href="#">个人信息</a></li>
+                                <li><a class="dropdown-item" href="#">修改密码</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/logout">退出登录</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-2 d-none d-md-block">
                     <div class="container-fluid">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="/home">首页</a></li>
@@ -110,6 +167,7 @@
             const currentPath = window.location.pathname;
             const menuToggle = document.querySelector('[data-bs-toggle="collapse"]');
             const pigSubmenu = document.getElementById('pigSubmenu');
+            const isMobile = window.innerWidth < 768;
             
             // 从localStorage读取菜单状态
             const loadMenuState = function() {
@@ -122,28 +180,122 @@
                 localStorage.setItem('pigSubmenuState', JSON.stringify({ expanded: isExpanded }));
             };
             
-            // 当前页面是猪舍管理页面，自动展开菜单
-            if (currentPath.includes('/pig/')) {
-                saveMenuState(true);
-            }
-            
-            // 非猪舍管理页面，但记忆中应该展开的情况
-            if (!currentPath.includes('/pig/') && loadMenuState().expanded && pigSubmenu) {
-                if (bootstrap.Collapse) {
-                    new bootstrap.Collapse(pigSubmenu, { toggle: true });
+            // 初始化折叠菜单
+            if (menuToggle && pigSubmenu) {
+                // 创建折叠菜单实例
+                const bsCollapse = new bootstrap.Collapse(pigSubmenu, {
+                    toggle: false
+                });
+                
+                // 当前页面是猪舍管理页面，自动展开菜单
+                if (currentPath.includes('/pig/')) {
+                    bsCollapse.show();
+                    saveMenuState(true);
+                } else if (loadMenuState().expanded) {
+                    // 非猪舍管理页面，但记忆中应该展开的情况
+                    bsCollapse.show();
                 }
-            }
-            
-            // 监听菜单折叠/展开事件
-            if (pigSubmenu) {
+                
+                // 修复移动端点击问题 - 添加手动触发事件
+                const toggleSubmenu = function(event) {
+                    event.preventDefault();
+                    if (pigSubmenu.classList.contains('show')) {
+                        bsCollapse.hide();
+                    } else {
+                        bsCollapse.show();
+                    }
+                };
+                
+                // 同时添加点击和触摸事件
+                menuToggle.addEventListener('click', toggleSubmenu);
+                menuToggle.addEventListener('touchstart', function(e) {
+                    // 阻止默认滚动行为
+                    e.preventDefault();
+                }, { passive: false });
+                menuToggle.addEventListener('touchend', toggleSubmenu);
+                
+                // 如果是移动设备，添加提示动画
+                if (isMobile) {
+                    // 创建并显示提示信息
+                    const showMenuTip = function() {
+                        if (!localStorage.getItem('menuTipShown')) {
+                            const tip = document.createElement('div');
+                            tip.className = 'alert alert-info alert-dismissible fade show position-fixed';
+                            tip.style.bottom = '20px';
+                            tip.style.left = '20px';
+                            tip.style.right = '20px';
+                            tip.style.zIndex = '1050';
+                            tip.innerHTML = `
+                                <strong>提示:</strong> 点击"猪舍管理"可以展开子菜单
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
+                            `;
+                            document.body.appendChild(tip);
+                            
+                            // 3秒后自动关闭
+                            setTimeout(function() {
+                                const bsAlert = new bootstrap.Alert(tip);
+                                bsAlert.close();
+                            }, 3000);
+                            
+                            // 记录已显示提示
+                            localStorage.setItem('menuTipShown', 'true');
+                        }
+                    };
+                    
+                    // 页面加载后显示提示
+                    setTimeout(showMenuTip, 1000);
+                }
+                
+                // 监听菜单折叠/展开事件
                 pigSubmenu.addEventListener('shown.bs.collapse', function() {
                     saveMenuState(true);
+                    menuToggle.setAttribute('aria-expanded', 'true');
                 });
                 
                 pigSubmenu.addEventListener('hidden.bs.collapse', function() {
                     saveMenuState(false);
+                    menuToggle.setAttribute('aria-expanded', 'false');
                 });
             }
+            
+            // 移动端侧边栏控制
+            const sidebar = document.getElementById('sidebar');
+            const toggleSidebarBtn = document.getElementById('toggleSidebar');
+            const closeSidebarBtn = document.getElementById('closeSidebar');
+            
+            if (toggleSidebarBtn) {
+                toggleSidebarBtn.addEventListener('click', function() {
+                    sidebar.classList.add('show');
+                });
+            }
+            
+            if (closeSidebarBtn) {
+                closeSidebarBtn.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                });
+            }
+            
+            // 点击侧边栏内的链接后关闭侧边栏
+            const sidebarLinks = sidebar.querySelectorAll('a.nav-link');
+            sidebarLinks.forEach(link => {
+                if (!link.getAttribute('data-bs-toggle')) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth < 768) {
+                            sidebar.classList.remove('show');
+                        }
+                    });
+                }
+            });
+            
+            // 点击外部关闭侧边栏
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth < 768 && 
+                    sidebar.classList.contains('show') && 
+                    !sidebar.contains(event.target) && 
+                    event.target !== toggleSidebarBtn) {
+                    sidebar.classList.remove('show');
+                }
+            });
         });
     </script>
     {% block extra_js %}{% endblock %}
