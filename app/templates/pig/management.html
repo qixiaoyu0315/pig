@@ -110,36 +110,21 @@
     </div>
 </div>
 
-<!-- 母猪列表 -->
-<div class="row">
-    <div class="col-md-12">
+<!-- 筛选表单 -->
+<div class="row mt-3">
+    <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">母猪列表</h5>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addPigModal">
-                        <i class="bi bi-plus-circle me-1"></i> 添加母猪
-                    </button>
-                </div>
-            </div>
-            <div class="card-body pb-0">
-                <form method="GET" action="/pig/management" class="mb-3" id="filterForm">
-                    <!-- 分页参数隐藏字段，默认第一页 -->
+            <div class="card-body">
+                <form method="GET" action="/pig/management" id="filterForm">
                     <input type="hidden" name="page" value="1" id="page_field">
-                    
-                    <div class="row align-items-end g-3">
+                    <div class="row g-2">
                         <div class="col-md-3">
-                            <label for="keyword" class="form-label">搜索耳标号</label>
-                            <div class="input-group">
-                                <input type="text" id="keyword" class="form-control" name="keyword" placeholder="输入耳标号" value="{{ keyword or '' }}">
-                                <button class="btn btn-outline-primary" type="submit">
-                                    <i class="bi bi-search"></i>
-                                </button>
-                            </div>
+                            <label for="keyword" class="form-label">搜索耳标号或母猪号</label>
+                            <input type="text" class="form-control" id="keyword" name="keyword" placeholder="输入耳标号或母猪号" value="{{ keyword or '' }}">
                         </div>
                         <div class="col-md-2">
                             <label for="status" class="form-label">状态筛选</label>
-                            <select id="status" class="form-select" name="status">
+                            <select class="form-select" id="status" name="status">
                                 <option value="">全部状态</option>
                                 <option value="正常" {% if filter_status == '正常' %}selected{% endif %}>正常</option>
                                 <option value="妊娠" {% if filter_status == '妊娠' %}selected{% endif %}>妊娠</option>
@@ -151,8 +136,8 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label for="health_status" class="form-label">健康状况</label>
-                            <select id="health_status" class="form-select" name="health_status">
+                            <label for="health_status" class="form-label">健康状态</label>
+                            <select class="form-select" id="health_status" name="health_status">
                                 <option value="">全部健康状态</option>
                                 <option value="健康" {% if filter_health_status == '健康' %}selected{% endif %}>健康</option>
                                 <option value="待观察" {% if filter_health_status == '待观察' %}selected{% endif %}>待观察</option>
@@ -161,32 +146,45 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label for="pen_id" class="form-label">猪圈筛选</label>
-                            <select id="pen_id" class="form-select" name="pen_id">
-                                <option value="">全部猪圈</option>
+                            <label for="pen_id" class="form-label">猪舍筛选</label>
+                            <select class="form-select" id="pen_id" name="pen_id">
+                                <option value="">全部猪舍</option>
                                 {% for pen in pig_pens %}
                                 <option value="{{ pen.id }}" {% if filter_pen_id|string == pen.id|string %}selected{% endif %}>{{ pen.pen_number }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <div class="d-flex">
-                                <button type="submit" class="btn btn-primary w-50 me-2">
-                                    <i class="bi bi-filter me-1"></i> 应用筛选
+                            <label class="form-label d-block">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1">
+                                    <i class="fas fa-filter"></i> 应用筛选
                                 </button>
                                 {% if keyword or filter_status or filter_health_status or filter_pen_id %}
-                                <a href="/pig/management" class="btn btn-outline-secondary w-50">
-                                    <i class="bi bi-x-circle me-1"></i> 清除筛选
+                                <a href="/pig/management" class="btn btn-outline-secondary flex-grow-1">
+                                    <i class="fas fa-times"></i> 清除筛选
                                 </a>
-                                {% else %}
-                                <button type="reset" class="btn btn-outline-secondary w-50">
-                                    <i class="bi bi-arrow-counterclockwise me-1"></i> 重置
-                                </button>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 母猪列表 -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>母猪列表</h5>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addPigModal">
+                    <i class="fas fa-plus"></i> 添加母猪
+                </button>
+            </div>
+            <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover table-sm mb-0">
                         <thead class="table-light">
@@ -198,15 +196,9 @@
                                 <th style="width: 80px;">体重(kg)</th>
                                 <th style="width: 90px;">状态</th>
                                 <th style="width: 90px;">健康状态</th>
-                                <th style="width: 100px;">所在猪圈</th>
+                                <th style="width: 100px;">所在猪舍</th>
                                 <th style="width: 120px;">入栏日期</th>
-                                <th style="width: 220px;">
-                                    {% if pigs and pigs|selectattr('status', 'eq', '妊娠')|list|length > 0 %}
-                                    妊娠天数
-                                    {% else %}
-                                    &nbsp;
-                                    {% endif %}
-                                </th>
+                                <th style="width: 120px;">妊娠天数</th>
                                 <th style="width: 160px;" class="text-center">操作</th>
                             </tr>
                         </thead>
@@ -218,44 +210,38 @@
                                     <td>{{ pig.sow_number if pig.sow_number else '-' }}</td>
                                     <td>{{ pig.parity }}</td>
                                     <td>{{ pig.breed }}</td>
-                                    <td>{{ pig.weight }}</td>
+                                    <td>{{ "%.1f"|format(pig.weight) }}</td>
                                     <td><span class="badge {{ pig.status|status_class }}">{{ pig.status }}</span></td>
                                     <td><span class="badge {{ pig.health_status|health_status_class }}">{{ pig.health_status }}</span></td>
                                     <td>{{ pig.pen.pen_number if pig.pen else "-" }}</td>
                                     <td>{{ pig.entry_date.strftime('%Y-%m-%d') }}</td>
                                     <td>
                                         {% if pig.status == '妊娠' and pig.pregnancy_days is not none %}
-                                        <div class="progress" style="height: 20px;">
-                                            <div class="progress-bar progress-bar-striped bg-info" role="progressbar" 
-                                                style="width: {{ (pig.pregnancy_days / 114 * 100)|round|int }}%;" 
-                                                aria-valuenow="{{ pig.pregnancy_days }}" aria-valuemin="0" aria-valuemax="114">
-                                                {{ pig.pregnancy_days }}天
-                                            </div>
-                                        </div>
+                                            <span class="badge bg-info">{{ pig.pregnancy_days }}天</span>
                                         {% else %}
-                                        -
+                                            -
                                         {% endif %}
                                     </td>
                                     <td class="text-center">
-                                        <div class="btn-group" role="group">
-                                            <button class="btn btn-outline-primary btn-sm" onclick="viewPigDetails({{ pig.id }})">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="d-flex justify-content-center">
+                                            <button class="btn btn-outline-primary m-1" onclick="viewPigDetails({{ pig.id }})">
+                                                <i class="fas fa-eye"></i> 查看
                                             </button>
-                                            <button class="btn btn-outline-success btn-sm" onclick="editPig({{ pig.id }})">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger btn-sm" onclick="deletePig({{ pig.id }})">
-                                                <i class="fas fa-trash"></i>
+                                            <button class="btn btn-outline-success m-1" onclick="editPig({{ pig.id }})">
+                                                <i class="fas fa-edit"></i> 编辑
                                             </button>
                                             {% if pig.status == '妊娠' %}
-                                            <button class="btn btn-outline-info btn-sm" onclick="editBreedingRecord({{ pig.id }})">
+                                            <button class="btn btn-outline-info m-1" onclick="editBreedingRecord({{ pig.id }})">
                                                 <i class="fas fa-pen"></i> 繁育
                                             </button>
                                             {% else %}
-                                            <button class="btn btn-outline-info btn-sm" onclick="addBreedingRecord({{ pig.id }})">
+                                            <button class="btn btn-outline-info m-1" onclick="addBreedingRecord({{ pig.id }})">
                                                 <i class="fas fa-plus"></i> 繁育
                                             </button>
                                             {% endif %}
+                                            <button class="btn btn-outline-danger m-1" onclick="deletePig({{ pig.id }})">
+                                                <i class="fas fa-trash"></i> 删除
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -275,49 +261,37 @@
                         <p class="text-muted mb-0">共 {{ total_count }} 条记录，当前显示第 {{ current_page }}/{{ total_pages }} 页</p>
                     </div>
                     <div class="col-md-6">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination justify-content-end mb-0">
-                                <!-- 上一页 -->
+                        <nav aria-label="分页">
+                            <ul class="pagination justify-content-center">
                                 <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
-                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page={{ current_page - 1 }}" {% if current_page == 1 %}tabindex="-1" aria-disabled="true"{% endif %}>上一页</a>
+                                    <a class="page-link" href="?page=1&keyword={{ keyword or '' }}&status={{ filter_status or '' }}&health_status={{ filter_health_status or '' }}&pen_id={{ filter_pen_id or '' }}" aria-label="首页">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                                    <a class="page-link" href="?page={{ current_page - 1 }}&keyword={{ keyword or '' }}&status={{ filter_status or '' }}&health_status={{ filter_health_status or '' }}&pen_id={{ filter_pen_id or '' }}" aria-label="上一页">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
                                 </li>
                                 
-                                <!-- 页码 -->
-                                {% set start_page = [current_page - 2, 1] | max %}
-                                {% set end_page = [start_page + 4, total_pages] | min %}
-                                {% set start_page = [end_page - 4, 1] | max %}
-                                
-                                {% if start_page > 1 %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page=1">1</a>
-                                </li>
-                                {% if start_page > 2 %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                                {% endif %}
-                                {% endif %}
+                                {% set start_page = [1, current_page - 2]|max %}
+                                {% set end_page = [total_pages, current_page + 2]|min %}
                                 
                                 {% for page_num in range(start_page, end_page + 1) %}
                                 <li class="page-item {% if page_num == current_page %}active{% endif %}">
-                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page={{ page_num }}">{{ page_num }}</a>
+                                    <a class="page-link" href="?page={{ page_num }}&keyword={{ keyword or '' }}&status={{ filter_status or '' }}&health_status={{ filter_health_status or '' }}&pen_id={{ filter_pen_id or '' }}">{{ page_num }}</a>
                                 </li>
                                 {% endfor %}
                                 
-                                {% if end_page < total_pages %}
-                                {% if end_page < total_pages - 1 %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                                {% endif %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page={{ total_pages }}">{{ total_pages }}</a>
-                                </li>
-                                {% endif %}
-                                
-                                <!-- 下一页 -->
                                 <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
-                                    <a class="page-link" href="{{ request.url.remove_query_params(['page']) }}{% if request.query_params %}&{% else %}?{% endif %}page={{ current_page + 1 }}" {% if current_page == total_pages %}tabindex="-1" aria-disabled="true"{% endif %}>下一页</a>
+                                    <a class="page-link" href="?page={{ current_page + 1 }}&keyword={{ keyword or '' }}&status={{ filter_status or '' }}&health_status={{ filter_health_status or '' }}&pen_id={{ filter_pen_id or '' }}" aria-label="下一页">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                                    <a class="page-link" href="?page={{ total_pages }}&keyword={{ keyword or '' }}&status={{ filter_status or '' }}&health_status={{ filter_health_status or '' }}&pen_id={{ filter_pen_id or '' }}" aria-label="尾页">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
                                 </li>
                             </ul>
                         </nav>
@@ -382,7 +356,7 @@
                             <input type="number" class="form-control" id="addBackfatThickness" name="backfat_thickness" step="0.1" min="0">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="addPenId" class="form-label">所在猪圈 <span class="text-danger">*</span></label>
+                            <label for="addPenId" class="form-label">所在猪舍 <span class="text-danger">*</span></label>
                             <select class="form-select" id="addPenId" name="pen_id" required>
                                 <option value="">请选择</option>
                                 {% for pen in pig_pens %}
@@ -487,7 +461,7 @@
                             <input type="number" class="form-control" id="editBackfatThickness" name="backfat_thickness" step="0.1" min="0">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="editPenId" class="form-label">所在猪圈 <span class="text-danger">*</span></label>
+                            <label for="editPenId" class="form-label">所在猪舍 <span class="text-danger">*</span></label>
                             <select class="form-select" id="editPenId" name="pen_id" required>
                                 <option value="">请选择</option>
                                 {% for pen in pig_pens %}
@@ -593,7 +567,7 @@
                             <div class="col-md-8" id="viewHealthStatus"></div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-md-4 fw-bold">所在猪圈:</div>
+                            <div class="col-md-4 fw-bold">所在猪舍:</div>
                             <div class="col-md-8" id="viewPen"></div>
                         </div>
                         <div class="row mb-2">
@@ -803,12 +777,19 @@
 
 {% block extra_js %}
 <script>
+    // 页面加载完成后执行
     document.addEventListener('DOMContentLoaded', function() {
         // 为添加母猪模态框设置当天日期
         document.querySelector('#addPigModal').addEventListener('show.bs.modal', function() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('addEntryDate').value = today;
         });
+
+        // 分页功能
+        window.goToPage = function(page) {
+            document.getElementById('page_field').value = page;
+            document.getElementById('filterForm').submit();
+        };
 
         // 保存新母猪
         document.getElementById('savePigBtn').addEventListener('click', function() {
@@ -896,7 +877,7 @@
                 document.getElementById('viewParity').textContent = data.parity || '0';
                 document.getElementById('viewBirthDate').textContent = data.birth_date || '-';
                 document.getElementById('viewBreed').textContent = data.breed || '-';
-                document.getElementById('viewWeight').textContent = data.weight ? `${data.weight} kg` : '-';
+                document.getElementById('viewWeight').textContent = data.weight ? `${parseFloat(data.weight).toFixed(1)} kg` : '-';
                 document.getElementById('viewBackfatThickness').textContent = data.backfat_thickness ? `${data.backfat_thickness} mm` : '-';
                 document.getElementById('viewNotes').textContent = data.notes || '-';
                 
@@ -991,7 +972,7 @@
                 document.getElementById('editParity').value = data.parity || '0';
                 document.getElementById('editBirthDate').value = data.birth_date;
                 document.getElementById('editBreed').value = data.breed;
-                document.getElementById('editWeight').value = data.weight;
+                document.getElementById('editWeight').value = parseFloat(data.weight).toFixed(1);
                 document.getElementById('editBackfatThickness').value = data.backfat_thickness || '';
                 document.getElementById('editStatus').value = data.status;
                 document.getElementById('editHealthStatus').value = data.health_status;
@@ -1035,5 +1016,19 @@
             alert('系统错误，请重试');
         });
     }
+    
+    // 添加繁育记录
+    function addBreedingRecord(pigId) {
+        // 这里可以实现添加繁育记录逻辑
+        alert('该功能将使用现有的繁育记录添加功能，已记录猪只ID: ' + pigId);
+    }
+    
+    // 编辑繁育记录
+    function editBreedingRecord(pigId) {
+        // 这里可以实现编辑繁育记录逻辑
+        alert('该功能将使用现有的繁育记录编辑功能，已记录猪只ID: ' + pigId);
+    }
+
+    // 在JavaScript中添加体重格式化函数
 </script>
 {% endblock %} 

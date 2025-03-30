@@ -252,19 +252,19 @@ async def add_pig(
                 content={"success": False, "message": "母猪号已存在"}
             )
     
-    # 检查猪圈是否存在
+    # 检查猪舍是否存在
     pen = db.query(PigPen).filter(PigPen.id == pen_id).first()
     if not pen:
         return JSONResponse(
             status_code=400,
-            content={"success": False, "message": "所选猪圈不存在"}
+            content={"success": False, "message": "所选猪舍不存在"}
         )
     
-    # 检查猪圈容量
+    # 检查猪舍容量
     if pen.current_count >= pen.capacity:
         return JSONResponse(
             status_code=400,
-            content={"success": False, "message": "所选猪圈已满"}
+            content={"success": False, "message": "所选猪舍已满"}
         )
     
     # 格式化日期
@@ -303,7 +303,7 @@ async def add_pig(
     
     db.add(new_pig)
     
-    # 更新猪圈当前数量
+    # 更新猪舍当前数量
     pen.current_count += 1
     
     # 更新猪舍当前数量
@@ -360,25 +360,25 @@ async def update_pig(
                 content={"success": False, "message": "母猪号已存在"}
             )
     
-    # 处理猪圈变更
+    # 处理猪舍变更
     old_pen_id = pig.pen_id
     if pen_id != old_pen_id:
-        # 检查新猪圈是否存在
+        # 检查新猪舍是否存在
         new_pen = db.query(PigPen).filter(PigPen.id == pen_id).first()
         if not new_pen:
             return JSONResponse(
                 status_code=400,
-                content={"success": False, "message": "所选猪圈不存在"}
+                content={"success": False, "message": "所选猪舍不存在"}
             )
         
-        # 检查新猪圈容量
+        # 检查新猪舍容量
         if new_pen.current_count >= new_pen.capacity:
             return JSONResponse(
                 status_code=400,
-                content={"success": False, "message": "所选猪圈已满"}
+                content={"success": False, "message": "所选猪舍已满"}
             )
         
-        # 更新旧猪圈数量
+        # 更新旧猪舍数量
         old_pen = db.query(PigPen).filter(PigPen.id == old_pen_id).first()
         if old_pen:
             old_pen.current_count -= 1
@@ -388,7 +388,7 @@ async def update_pig(
             if old_house:
                 old_house.current_count -= 1
         
-        # 更新新猪圈数量
+        # 更新新猪舍数量
         new_pen.current_count += 1
         
         # 更新新猪舍数量
