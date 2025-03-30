@@ -1,11 +1,9 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 import os
 
 from app.routes import home, auth, pig
 from app.db_init import initialize_database, update_pig_backfat
-from app.db_migrate import migrate_database
 
 app = FastAPI(
     title="母猪管理系统",
@@ -21,9 +19,6 @@ app.include_router(auth.router)
 app.include_router(home.router)
 app.include_router(pig.router)
 
-# 创建模板引擎
-templates = Jinja2Templates(directory="app/templates")
-
 # 初始化数据库
 @app.on_event("startup")
 async def startup_event():
@@ -33,9 +28,7 @@ async def startup_event():
         # 初始化数据库并填充示例数据
         initialize_database()
     else:
-        print("数据库已存在，执行迁移...")
-        # 迁移数据库结构
-        migrate_database()
+        print("数据库已有数据，跳过初始化")
         # 确保所有猪只都有背膘厚度数据
         update_pig_backfat()
 

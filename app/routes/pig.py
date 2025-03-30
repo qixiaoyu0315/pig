@@ -18,6 +18,35 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="app/templates")
 
+# 自定义过滤器：根据状态返回对应的Bootstrap样式类
+def status_class(status):
+    """根据母猪状态返回对应的Bootstrap样式类"""
+    status_map = {
+        "正常": "bg-success",
+        "妊娠": "bg-info",
+        "哺乳": "bg-primary",
+        "分娩": "bg-warning",
+        "休息": "bg-secondary",
+        "治疗": "bg-danger",
+        "淘汰": "bg-dark"
+    }
+    return status_map.get(status, "bg-light text-dark")
+
+# 自定义过滤器：根据健康状态返回对应的Bootstrap样式类
+def health_status_class(health_status):
+    """根据健康状态返回对应的Bootstrap样式类"""
+    health_map = {
+        "健康": "bg-success",
+        "待观察": "bg-warning",
+        "治疗中": "bg-danger",
+        "隔离中": "bg-dark"
+    }
+    return health_map.get(health_status, "bg-light text-dark")
+
+# 注册过滤器到Jinja2模板环境
+templates.env.filters["status_class"] = status_class
+templates.env.filters["health_status_class"] = health_status_class
+
 @router.get("/management", response_class=HTMLResponse)
 async def pig_management(
     request: Request, 
