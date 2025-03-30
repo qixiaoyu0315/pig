@@ -157,6 +157,35 @@ class FeedSetting(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     special_instructions = Column(Text, nullable=True)
+    feeder_number = Column(String(50), nullable=True)  # 下料器号
+    pig_id = Column(Integer, ForeignKey("pigs.id"), nullable=True)  # 关联的猪只ID
+    predicted_amount = Column(Float, nullable=True)  # 预测采食量(kg)
+    actual_amount = Column(Float, nullable=True)  # 实际采食量(kg)
+    set_amount = Column(Float, nullable=True)  # 设置采食量(kg)
+    last_setting_time = Column(DateTime, nullable=True)  # 上次设置时间
+    
+    # 关系
+    pig = relationship("Pig", foreign_keys=[pig_id], backref="feed_settings")
+    pen = relationship("PigPen", backref="feed_settings")
+
+class FeedCalculation(Base):
+    """下料计算表"""
+    __tablename__ = "feed_calculations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    feed_setting_id = Column(Integer, ForeignKey("feed_settings.id"))
+    calculation_date = Column(DateTime, default=datetime.now)
+    weight_factor = Column(Float, default=1.0)  # 体重因子
+    health_factor = Column(Float, default=1.0)  # 健康状况因子
+    temperature_factor = Column(Float, default=1.0)  # 温度因子
+    stage_factor = Column(Float, default=1.0)  # 生长阶段因子
+    calculation_formula = Column(String(200))  # 计算公式
+    base_amount = Column(Float)  # 基础用量(kg)
+    adjusted_amount = Column(Float)  # 调整后用量(kg)
+    notes = Column(Text, nullable=True)
+    
+    # 关系
+    feed_setting = relationship("FeedSetting", backref="calculations")
 
 class HealthRecord(Base):
     """健康记录表"""

@@ -127,12 +127,15 @@
                     <thead>
                         <tr>
                             <th>计划名称</th>
+                            <th>下料器号</th>
+                            <th>母猪号</th>
+                            <th>耳标号</th>
                             <th>适用圈舍</th>
                             <th>猪只状态</th>
-                            <th>每次投喂量(kg)</th>
-                            <th>投喂次数</th>
-                            <th>每日总量(kg)</th>
-                            <th>投喂方式</th>
+                            <th>预测采食量(kg)</th>
+                            <th>实际采食量(kg)</th>
+                            <th>设置采食量(kg)</th>
+                            <th>上次设置时间</th>
                             <th>状态</th>
                             <th>操作</th>
                         </tr>
@@ -140,72 +143,102 @@
                     <tbody>
                         <tr>
                             <td>标准饲喂计划</td>
+                            <td>ei-00245</td>
+                            <td>N00185</td>
+                            <td>15616800001</td>
                             <td>所有圈舍</td>
                             <td>正常</td>
-                            <td>5.0</td>
-                            <td>3</td>
+                            <td>15.2</td>
+                            <td>14.8</td>
                             <td>15.0</td>
-                            <td>自动</td>
+                            <td>2023-05-12 08:30</td>
                             <td><span class="badge bg-success">启用</span></td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
-                                <button class="btn btn-sm btn-outline-danger">停用</button>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editFeedModal">编辑</button>
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#calcFeedModal">计算</button>
+                                    <button class="btn btn-sm btn-outline-danger">停用</button>
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td>怀孕期饲喂计划</td>
+                            <td>ei-00138</td>
+                            <td>N00192</td>
+                            <td>15616800002</td>
                             <td>1区，2区</td>
                             <td>怀孕</td>
-                            <td>5.5</td>
-                            <td>3</td>
+                            <td>16.8</td>
+                            <td>16.2</td>
                             <td>16.5</td>
-                            <td>自动</td>
+                            <td>2023-05-15 09:15</td>
                             <td><span class="badge bg-success">启用</span></td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
-                                <button class="btn btn-sm btn-outline-danger">停用</button>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editFeedModal">编辑</button>
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#calcFeedModal">计算</button>
+                                    <button class="btn btn-sm btn-outline-danger">停用</button>
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td>哺乳期饲喂计划</td>
+                            <td>ei-00524</td>
+                            <td>N00203</td>
+                            <td>15616800003</td>
                             <td>3区</td>
                             <td>哺乳</td>
-                            <td>6.0</td>
-                            <td>3</td>
+                            <td>18.5</td>
+                            <td>17.8</td>
                             <td>18.0</td>
-                            <td>自动</td>
+                            <td>2023-05-10 14:20</td>
                             <td><span class="badge bg-success">启用</span></td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
-                                <button class="btn btn-sm btn-outline-danger">停用</button>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editFeedModal">编辑</button>
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#calcFeedModal">计算</button>
+                                    <button class="btn btn-sm btn-outline-danger">停用</button>
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td>疗养期饲喂计划</td>
+                            <td>ei-00371</td>
+                            <td>N00215</td>
+                            <td>15616800004</td>
                             <td>4区</td>
                             <td>恢复</td>
-                            <td>4.0</td>
-                            <td>3</td>
+                            <td>12.5</td>
+                            <td>11.8</td>
                             <td>12.0</td>
-                            <td>自动</td>
+                            <td>2023-05-18 10:40</td>
                             <td><span class="badge bg-success">启用</span></td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
-                                <button class="btn btn-sm btn-outline-danger">停用</button>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editFeedModal">编辑</button>
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#calcFeedModal">计算</button>
+                                    <button class="btn btn-sm btn-outline-danger">停用</button>
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td>特殊饲喂计划</td>
+                            <td>ei-00629</td>
+                            <td>N00221</td>
+                            <td>15616800005</td>
                             <td>5区</td>
                             <td>特殊照顾</td>
-                            <td>3.5</td>
-                            <td>4</td>
+                            <td>14.2</td>
+                            <td>13.6</td>
                             <td>14.0</td>
-                            <td>半自动</td>
+                            <td>2023-05-20 16:30</td>
                             <td><span class="badge bg-warning">测试中</span></td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-1">编辑</button>
-                                <button class="btn btn-sm btn-outline-success">启用</button>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editFeedModal">编辑</button>
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#calcFeedModal">计算</button>
+                                    <button class="btn btn-sm btn-outline-success">启用</button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -214,4 +247,355 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+<!-- 编辑下料设置模态框 -->
+<div class="modal fade" id="editFeedModal" tabindex="-1" aria-labelledby="editFeedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editFeedModalLabel">编辑下料设置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editFeedForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="planName" class="form-label">计划名称</label>
+                                <input type="text" class="form-control" id="planName" value="标准饲喂计划">
+                            </div>
+                            <div class="mb-3">
+                                <label for="feederNumber" class="form-label">下料器号</label>
+                                <input type="text" class="form-control" id="feederNumber" value="ei-00245">
+                            </div>
+                            <div class="mb-3">
+                                <label for="sowNumber" class="form-label">母猪号</label>
+                                <select class="form-select" id="sowNumber">
+                                    <option value="N00185" selected>N00185</option>
+                                    <option value="N00192">N00192</option>
+                                    <option value="N00203">N00203</option>
+                                    <option value="N00215">N00215</option>
+                                    <option value="N00221">N00221</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="earTag" class="form-label">耳标号</label>
+                                <input type="text" class="form-control" id="earTag" value="15616800001" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="penArea" class="form-label">适用圈舍</label>
+                                <select class="form-select" id="penArea">
+                                    <option value="all" selected>所有圈舍</option>
+                                    <option value="1,2">1区，2区</option>
+                                    <option value="3">3区</option>
+                                    <option value="4">4区</option>
+                                    <option value="5">5区</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="pigStatus" class="form-label">猪只状态</label>
+                                <select class="form-select" id="pigStatus">
+                                    <option value="normal" selected>正常</option>
+                                    <option value="pregnant">怀孕</option>
+                                    <option value="nursing">哺乳</option>
+                                    <option value="recovery">恢复</option>
+                                    <option value="special">特殊照顾</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="predAmount" class="form-label">预测采食量(kg)</label>
+                                <input type="number" step="0.1" class="form-control" id="predAmount" value="15.2">
+                            </div>
+                            <div class="mb-3">
+                                <label for="actualAmount" class="form-label">实际采食量(kg)</label>
+                                <input type="number" step="0.1" class="form-control" id="actualAmount" value="14.8">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="setAmount" class="form-label">设置采食量(kg)</label>
+                                <input type="number" step="0.1" class="form-control" id="setAmount" value="15.0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="feedingTimes" class="form-label">投喂次数</label>
+                                <select class="form-select" id="feedingTimes">
+                                    <option value="2">2次/天</option>
+                                    <option value="3" selected>3次/天</option>
+                                    <option value="4">4次/天</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="feedType" class="form-label">饲料类型</label>
+                                <select class="form-select" id="feedType">
+                                    <option value="standard" selected>标准配方</option>
+                                    <option value="pregnant">怀孕期配方</option>
+                                    <option value="nursing">哺乳期配方</option>
+                                    <option value="recovery">恢复期配方</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="feedMethod" class="form-label">投喂方式</label>
+                                <select class="form-select" id="feedMethod">
+                                    <option value="auto" selected>自动</option>
+                                    <option value="semi">半自动</option>
+                                    <option value="manual">手动</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="specialInstructions" class="form-label">特殊说明</label>
+                        <textarea class="form-control" id="specialInstructions" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">保存设置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 下料计算模态框 -->
+<div class="modal fade" id="calcFeedModal" tabindex="-1" aria-labelledby="calcFeedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="calcFeedModalLabel">下料计算</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">基本信息</h5>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td class="fw-bold">计划名称:</td>
+                                        <td>标准饲喂计划</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">下料器号:</td>
+                                        <td>ei-00245</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">母猪号:</td>
+                                        <td>N00185</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">耳标号:</td>
+                                        <td>15616800001</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">猪只状态:</td>
+                                        <td>正常</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">计算因子</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="weightFactor" class="form-label">体重因子</label>
+                                            <input type="range" class="form-range" min="0.8" max="1.2" step="0.05" id="weightFactor" value="1.0" oninput="updateFactorValue('weightFactor')">
+                                            <div class="d-flex justify-content-between">
+                                                <small>0.8</small>
+                                                <small id="weightFactorValue">1.0</small>
+                                                <small>1.2</small>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="healthFactor" class="form-label">健康状况因子</label>
+                                            <input type="range" class="form-range" min="0.8" max="1.2" step="0.05" id="healthFactor" value="1.0" oninput="updateFactorValue('healthFactor')">
+                                            <div class="d-flex justify-content-between">
+                                                <small>0.8</small>
+                                                <small id="healthFactorValue">1.0</small>
+                                                <small>1.2</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="tempFactor" class="form-label">温度因子</label>
+                                            <input type="range" class="form-range" min="0.8" max="1.2" step="0.05" id="tempFactor" value="1.0" oninput="updateFactorValue('tempFactor')">
+                                            <div class="d-flex justify-content-between">
+                                                <small>0.8</small>
+                                                <small id="tempFactorValue">1.0</small>
+                                                <small>1.2</small>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="stageFactor" class="form-label">生长阶段因子</label>
+                                            <input type="range" class="form-range" min="0.8" max="1.2" step="0.05" id="stageFactor" value="1.0" oninput="updateFactorValue('stageFactor')">
+                                            <div class="d-flex justify-content-between">
+                                                <small>0.8</small>
+                                                <small id="stageFactorValue">1.0</small>
+                                                <small>1.2</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">计算结果</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="baseAmount" class="form-label">基础用量</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="baseAmount" value="15.0" readonly>
+                                        <span class="input-group-text">kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="calculatedAmount" class="form-label">计算用量</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="calculatedAmount" value="15.0" readonly>
+                                        <span class="input-group-text">kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="adjustedAmount" class="form-label">调整用量</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="adjustedAmount" value="15.0">
+                                        <span class="input-group-text">kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="formulaDisplay" class="form-label">计算公式</label>
+                            <input type="text" class="form-control" id="formulaDisplay" value="15.0 * 1.0 * 1.0 * 1.0 * 1.0 = 15.0 kg" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="calcNotes" class="form-label">备注</label>
+                            <textarea class="form-control" id="calcNotes" rows="2">基于母猪状态的自动计算</textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">历史计算记录</h5>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>计算日期</th>
+                                    <th>基础用量</th>
+                                    <th>计算用量</th>
+                                    <th>调整用量</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2023-05-20</td>
+                                    <td>15.0 kg</td>
+                                    <td>15.5 kg</td>
+                                    <td>15.5 kg</td>
+                                    <td>基于母猪状态的自动计算</td>
+                                </tr>
+                                <tr>
+                                    <td>2023-05-10</td>
+                                    <td>15.0 kg</td>
+                                    <td>14.8 kg</td>
+                                    <td>15.0 kg</td>
+                                    <td>基于母猪状态的自动计算</td>
+                                </tr>
+                                <tr>
+                                    <td>2023-04-25</td>
+                                    <td>14.5 kg</td>
+                                    <td>14.2 kg</td>
+                                    <td>14.5 kg</td>
+                                    <td>基于母猪状态的自动计算</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">应用计算结果</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // 更新因子值显示
+    function updateFactorValue(factorId) {
+        const slider = document.getElementById(factorId);
+        const valueDisplay = document.getElementById(factorId + 'Value');
+        valueDisplay.textContent = slider.value;
+        
+        // 更新计算结果
+        updateCalculation();
+    }
+    
+    // 更新计算结果
+    function updateCalculation() {
+        const baseAmount = parseFloat(document.getElementById('baseAmount').value);
+        const weightFactor = parseFloat(document.getElementById('weightFactor').value);
+        const healthFactor = parseFloat(document.getElementById('healthFactor').value);
+        const tempFactor = parseFloat(document.getElementById('tempFactor').value);
+        const stageFactor = parseFloat(document.getElementById('stageFactor').value);
+        
+        // 计算结果
+        const calculatedAmount = baseAmount * weightFactor * healthFactor * tempFactor * stageFactor;
+        document.getElementById('calculatedAmount').value = calculatedAmount.toFixed(1);
+        document.getElementById('adjustedAmount').value = calculatedAmount.toFixed(1);
+        
+        // 更新公式显示
+        document.getElementById('formulaDisplay').value = 
+            `${baseAmount.toFixed(1)} * ${weightFactor} * ${healthFactor} * ${tempFactor} * ${stageFactor} = ${calculatedAmount.toFixed(1)} kg`;
+    }
+    
+    // 当模态框显示时初始化滑块和计算
+    document.getElementById('calcFeedModal').addEventListener('shown.bs.modal', function () {
+        updateFactorValue('weightFactor');
+        updateFactorValue('healthFactor');
+        updateFactorValue('tempFactor');
+        updateFactorValue('stageFactor');
+    });
+    
+    // 当母猪号选择改变时更新耳标号
+    document.getElementById('sowNumber').addEventListener('change', function() {
+        const sowToEarTag = {
+            'N00185': '15616800001',
+            'N00192': '15616800002',
+            'N00203': '15616800003',
+            'N00215': '15616800004',
+            'N00221': '15616800005'
+        };
+        
+        document.getElementById('earTag').value = sowToEarTag[this.value] || '';
+    });
+</script>
 {% endblock %} 
