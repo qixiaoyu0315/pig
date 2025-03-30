@@ -78,7 +78,8 @@ async def pig_management(
     query = db.query(Pig)
     
     if keyword:
-        query = query.filter(Pig.ear_tag.like(f'%{keyword}%'))
+        # 同时搜索耳标号和母猪号
+        query = query.filter(Pig.ear_tag.like(f'%{keyword}%') | Pig.sow_number.like(f'%{keyword}%'))
     
     if status:
         query = query.filter(Pig.status == status)
@@ -169,6 +170,8 @@ async def get_pig_detail(pig_id: int, db: Session = Depends(get_db), user = Depe
     pig_data = {
         "id": pig.id,
         "ear_tag": pig.ear_tag,
+        "sow_number": pig.sow_number,
+        "parity": pig.parity,
         "birth_date": pig.birth_date.strftime("%Y-%m-%d") if pig.birth_date else None,
         "breed": pig.breed,
         "gender": pig.gender,
@@ -217,6 +220,7 @@ async def get_pig_detail(pig_id: int, db: Session = Depends(get_db), user = Depe
 @router.post("/add", response_class=JSONResponse)
 async def add_pig(
     ear_tag: str = Form(...),
+    sow_number: Optional[str] = Form(None),
     birth_date: str = Form(...),
     breed: str = Form(...),
     gender: str = Form("母"),
@@ -239,6 +243,15 @@ async def add_pig(
             content={"success": False, "message": "耳标号已存在"}
         )
     
+    # 检查母猪号是否已存在
+    if sow_number:
+        existing_sow = db.query(Pig).filter(Pig.sow_number == sow_number).first()
+        if existing_sow:
+            return JSONResponse(
+                status_code=400,
+                content={"success": False, "message": "母猪号已存在"}
+            )
+    
     # 检查猪圈是否存在
     pen = db.query(PigPen).filter(PigPen.id == pen_id).first()
     if not pen:
@@ -258,9 +271,24 @@ async def add_pig(
     birth_date_obj = datetime.datetime.strptime(birth_date, "%Y-%m-%d")
     entry_date_obj = datetime.datetime.strptime(entry_date, "%Y-%m-%d")
     
+    # 确保耳标号格式正确
+    if not ear_tag.startswith("15616800"):
+        # 如果用户输入了不符合格式的耳标号，保留最后4位，前面加上15616800
+        last_digits = ear_tag[-4:] if len(ear_tag) >= 4 else "0001"
+        ear_tag = f"15616800{last_digits}"
+    
+    # 如果没有指定母猪号且是母猪，生成一个
+    if not sow_number and gender == "母":
+        # 查找最大ID值
+        max_id = db.query(Pig).order_by(Pig.id.desc()).first()
+        next_id = 1 if not max_id else max_id.id + 1
+        sow_number = f"N{next_id:05d}"
+    
     # 创建新母猪
     new_pig = Pig(
         ear_tag=ear_tag,
+        sow_number=sow_number,
+        parity=0,  # 初始胎次为0
         birth_date=birth_date_obj,
         breed=breed,
         gender=gender,
@@ -292,6 +320,7 @@ async def add_pig(
 async def update_pig(
     pig_id: int,
     ear_tag: str = Form(...),
+    sow_number: Optional[str] = Form(None),
     birth_date: str = Form(...),
     breed: str = Form(...),
     weight: float = Form(...),
@@ -301,6 +330,7 @@ async def update_pig(
     pen_id: int = Form(...),
     entry_date: str = Form(...),
     notes: Optional[str] = Form(None),
+    parity: Optional[int] = Form(None),
     db: Session = Depends(get_db),
     user = Depends(get_current_user)
 ):
@@ -320,6 +350,15 @@ async def update_pig(
             status_code=400,
             content={"success": False, "message": "耳标号已存在"}
         )
+    
+    # 检查母猪号是否已存在（排除当前猪只）
+    if sow_number:
+        existing_sow = db.query(Pig).filter(Pig.sow_number == sow_number, Pig.id != pig_id).first()
+        if existing_sow:
+            return JSONResponse(
+                status_code=400,
+                content={"success": False, "message": "母猪号已存在"}
+            )
     
     # 处理猪圈变更
     old_pen_id = pig.pen_id
@@ -361,8 +400,15 @@ async def update_pig(
     birth_date_obj = datetime.datetime.strptime(birth_date, "%Y-%m-%d")
     entry_date_obj = datetime.datetime.strptime(entry_date, "%Y-%m-%d")
     
+    # 确保耳标号格式正确
+    if not ear_tag.startswith("15616800"):
+        # 如果用户输入了不符合格式的耳标号，保留最后4位，前面加上15616800
+        last_digits = ear_tag[-4:] if len(ear_tag) >= 4 else "0001"
+        ear_tag = f"15616800{last_digits}"
+    
     # 更新猪只信息
     pig.ear_tag = ear_tag
+    pig.sow_number = sow_number
     pig.birth_date = birth_date_obj
     pig.breed = breed
     pig.weight = weight
@@ -373,6 +419,10 @@ async def update_pig(
     pig.entry_date = entry_date_obj
     pig.notes = notes
     pig.last_update = datetime.datetime.now()
+    
+    # 更新胎次
+    if parity is not None:
+        pig.parity = parity
     
     db.commit()
     

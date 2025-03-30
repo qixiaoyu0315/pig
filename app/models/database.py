@@ -83,6 +83,8 @@ class Pig(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     ear_tag = Column(String(50), unique=True, index=True)  # 耳标号
+    sow_number = Column(String(50), unique=True, index=True, nullable=True)  # 母猪号
+    parity = Column(Integer, default=0)  # 胎次
     birth_date = Column(DateTime)
     breed = Column(String(50))  # 品种
     gender = Column(String(10))  # 性别
@@ -118,6 +120,11 @@ class Pig(Base):
             self.pregnancy_days = delta.days
         else:
             self.pregnancy_days = None
+    
+    def increment_parity(self):
+        """增加胎次"""
+        self.parity = (self.parity or 0) + 1
+        return self.parity
 
 class FeedingRecord(Base):
     """喂食记录表"""
@@ -207,6 +214,9 @@ class BreedingRecord(Base):
             self.pig.status = "哺乳"
             self.pig.last_breeding_date = None
             self.pig.pregnancy_days = None
+            
+            # 增加胎次
+            self.pig.increment_parity()
             
         # 已流产或已取消
         elif self.status in ["已流产", "已取消"]:

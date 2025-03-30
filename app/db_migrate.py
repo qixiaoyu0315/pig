@@ -60,6 +60,16 @@ def add_new_columns():
                 conn.execute(text('ALTER TABLE pigs ADD COLUMN pregnancy_days INTEGER'))
                 conn.commit()
             
+            if 'sow_number' not in pigs_table.columns:
+                print("添加 sow_number 字段...")
+                conn.execute(text('ALTER TABLE pigs ADD COLUMN sow_number VARCHAR(50)'))
+                conn.commit()
+            
+            if 'parity' not in pigs_table.columns:
+                print("添加 parity 字段...")
+                conn.execute(text('ALTER TABLE pigs ADD COLUMN parity INTEGER DEFAULT 0'))
+                conn.commit()
+            
             # 添加繁育记录表新字段
             if 'status' not in breeding_records_table.columns:
                 print("添加 status 字段...")
@@ -116,12 +126,52 @@ def update_pregnancy_data():
                 latest_breeding.status = "已分娩"
                 db.add(latest_breeding)
         
+        # 5. 更新胎次和母猪号信息
+        update_parity_and_sow_number(db)
+        
         db.commit()
         print("妊娠数据更新完成")
         
     except Exception as e:
         db.rollback()
         print(f"更新妊娠数据时出错: {e}")
+        raise
+
+def update_parity_and_sow_number(db):
+    """更新胎次和母猪号信息"""
+    try:
+        print("更新胎次和母猪号信息...")
+        
+        # 更新所有母猪的胎次
+        pigs = db.query(Pig).all()
+        
+        for pig in pigs:
+            if pig.gender == "母":
+                # 计算胎次（已分娩的繁育记录数量）
+                farrowed_count = db.query(BreedingRecord).filter(
+                    BreedingRecord.pig_id == pig.id,
+                    BreedingRecord.status == "已分娩"
+                ).count()
+                
+                pig.parity = farrowed_count
+                
+                # 如果没有母猪号，则生成一个
+                if not pig.sow_number:
+                    # 基于ID生成母猪号 N + 5位数字
+                    pig.sow_number = f"N{pig.id:05d}"
+                
+                # 更新耳标号，如果需要
+                if not pig.ear_tag.startswith("15616800"):
+                    # 保持最后4位数字，前面加上15616800
+                    last_digits = pig.ear_tag[-4:] if len(pig.ear_tag) >= 4 else f"{pig.id:04d}"
+                    pig.ear_tag = f"15616800{last_digits}"
+                
+                db.add(pig)
+                
+        print("胎次和母猪号信息更新完成")
+        
+    except Exception as e:
+        print(f"更新胎次和母猪号信息时出错: {e}")
         raise
 
 if __name__ == "__main__":
