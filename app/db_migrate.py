@@ -4,11 +4,14 @@ import os
 import sys
 from datetime import datetime, timedelta
 import sys
+import sqlite3
+import random
+import shutil
 
 # 添加项目根目录到系统路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.models.database import engine, Base, get_db, init_db, Pig, BreedingRecord
+from app.models.database import engine, Base, get_db, init_db, Pig, BreedingRecord, FeedingRecord
 
 def migrate_database():
     """迁移数据库结构和数据"""
@@ -22,6 +25,9 @@ def migrate_database():
     
     # 3. 更新母猪妊娠数据
     update_pregnancy_data()
+    
+    # 4. 初始化下料器号
+    init_feeder_numbers()
     
     print("数据库迁移完成")
 
@@ -173,6 +179,53 @@ def update_parity_and_sow_number(db):
     except Exception as e:
         print(f"更新胎次和母猪号信息时出错: {e}")
         raise
+
+def create_backup():
+    """创建数据库备份"""
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pig_management.db')
+    backup_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+        f'pig_management_backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}.db')
+    
+    if os.path.exists(db_path):
+        shutil.copy2(db_path, backup_path)
+        print(f"数据库已备份到: {backup_path}")
+    else:
+        print("未找到数据库文件，跳过备份")
+
+def add_column_if_not_exists(conn, table, column, column_type):
+    """检查列是否存在，如果不存在则添加"""
+    cursor = conn.cursor()
+    cursor.execute(f"PRAGMA table_info({table})")
+    columns = [col[1] for col in cursor.fetchall()]
+    
+    if column not in columns:
+        print(f"添加 {column} 列到 {table} 表")
+        cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
+        conn.commit()
+        return True
+    else:
+        print(f"{column} 列已存在于 {table} 表中")
+        return False
+
+def init_feeder_numbers():
+    """为已有的喂食记录初始化下料器号"""
+    db = next(get_db())
+    try:
+        # 查询所有没有下料器号的喂食记录
+        records = db.query(FeedingRecord).filter(FeedingRecord.feeder_number == None).all()
+        print(f"找到 {len(records)} 条需要初始化下料器号的记录")
+        
+        # 为每条记录生成一个下料器号并更新
+        for record in records:
+            # 生成下料器号 ei-00 开头加三位数字
+            feeder_num = f"ei-00{random.randint(100, 999)}"
+            record.feeder_number = feeder_num
+            
+        db.commit()
+        print("下料器号初始化完成")
+    except Exception as e:
+        db.rollback()
+        print(f"初始化下料器号失败: {e}")
 
 if __name__ == "__main__":
     migrate_database() 

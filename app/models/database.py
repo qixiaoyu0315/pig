@@ -138,6 +138,7 @@ class FeedingRecord(Base):
     feed_type = Column(String(50))
     feed_status = Column(String(20), default="正常")
     automatic = Column(Boolean, default=True)
+    feeder_number = Column(String(50), nullable=True)  # 下料器号，以ei-00开头
     
     # 关系
     pig = relationship("Pig", back_populates="feeding_records")

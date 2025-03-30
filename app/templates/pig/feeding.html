@@ -10,7 +10,7 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="输入猪只编号或圈舍编号">
+                            <input type="text" class="form-control" placeholder="输入母猪号或耳标号或下料器号">
                             <input type="date" class="form-control">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="button">
@@ -86,7 +86,9 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>猪只编号</th>
+                            <th>母猪号</th>
+                            <th>耳标号</th>
+                            <th>下料器号</th>
                             <th>圈舍位置</th>
                             <th>早餐采食量(kg)</th>
                             <th>午餐采食量(kg)</th>
@@ -99,7 +101,9 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>PIG001</td>
+                            <td>N00185</td>
+                            <td>15616800001</td>
+                            <td>ei-00245</td>
                             <td>圈舍1-A区</td>
                             <td>5.2</td>
                             <td>6.8</td>
@@ -108,11 +112,13 @@
                             <td><span class="badge bg-success">正常</span></td>
                             <td>0.3</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00185', '15616800001', 'ei-00245')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG002</td>
+                            <td>N00192</td>
+                            <td>15616800002</td>
+                            <td>ei-00138</td>
                             <td>圈舍2-B区</td>
                             <td>4.8</td>
                             <td>5.5</td>
@@ -121,11 +127,13 @@
                             <td><span class="badge bg-success">正常</span></td>
                             <td>0.6</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00192', '15616800002', 'ei-00138')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG003</td>
+                            <td>N00203</td>
+                            <td>15616800003</td>
+                            <td>ei-00524</td>
                             <td>圈舍1-C区</td>
                             <td>3.5</td>
                             <td>4.2</td>
@@ -134,11 +142,13 @@
                             <td><span class="badge bg-success">正常</span></td>
                             <td>0.9</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00203', '15616800003', 'ei-00524')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG004</td>
+                            <td>N00215</td>
+                            <td>15616800004</td>
+                            <td>ei-00371</td>
                             <td>圈舍3-A区</td>
                             <td>4.2</td>
                             <td>5.1</td>
@@ -147,11 +157,13 @@
                             <td><span class="badge bg-success">正常</span></td>
                             <td>0.4</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00215', '15616800004', 'ei-00371')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG005</td>
+                            <td>N00221</td>
+                            <td>15616800005</td>
+                            <td>ei-00629</td>
                             <td>圈舍2-A区</td>
                             <td>2.1</td>
                             <td>2.8</td>
@@ -160,11 +172,13 @@
                             <td><span class="badge bg-danger">异常</span></td>
                             <td>3.2</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00221', '15616800005', 'ei-00629')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG006</td>
+                            <td>N00237</td>
+                            <td>15616800006</td>
+                            <td>ei-00183</td>
                             <td>圈舍3-B区</td>
                             <td>4.5</td>
                             <td>4.8</td>
@@ -173,11 +187,13 @@
                             <td><span class="badge bg-success">正常</span></td>
                             <td>0.5</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00237', '15616800006', 'ei-00183')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG007</td>
+                            <td>N00242</td>
+                            <td>15616800007</td>
+                            <td>ei-00421</td>
                             <td>圈舍1-D区</td>
                             <td>4.0</td>
                             <td>4.3</td>
@@ -186,11 +202,13 @@
                             <td><span class="badge bg-success">正常</span></td>
                             <td>0.8</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00242', '15616800007', 'ei-00421')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG008</td>
+                            <td>N00255</td>
+                            <td>15616800008</td>
+                            <td>ei-00519</td>
                             <td>圈舍4-A区</td>
                             <td>3.2</td>
                             <td>3.5</td>
@@ -199,11 +217,13 @@
                             <td><span class="badge bg-warning">偏低</span></td>
                             <td>1.8</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00255', '15616800008', 'ei-00519')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG009</td>
+                            <td>N00267</td>
+                            <td>15616800009</td>
+                            <td>ei-00388</td>
                             <td>圈舍4-B区</td>
                             <td>3.8</td>
                             <td>4.2</td>
@@ -212,11 +232,13 @@
                             <td><span class="badge bg-success">正常</span></td>
                             <td>0.5</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00267', '15616800009', 'ei-00388')">详情</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>PIG010</td>
+                            <td>N00278</td>
+                            <td>15616800010</td>
+                            <td>ei-00246</td>
                             <td>圈舍5-A区</td>
                             <td>4.2</td>
                             <td>4.5</td>
@@ -225,7 +247,7 @@
                             <td><span class="badge bg-success">正常</span></td>
                             <td>0.4</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">详情</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="showFeedingDetail('N00278', '15616800010', 'ei-00246')">详情</button>
                             </td>
                         </tr>
                     </tbody>
@@ -250,4 +272,314 @@
         </div>
     </div>
 </div>
+
+<!-- 采食详情模态框 -->
+<div class="modal fade" id="feedingDetailModal" tabindex="-1" aria-labelledby="feedingDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedingDetailModalLabel">采食详情</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">母猪基本信息</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td class="fw-bold">母猪号：</td>
+                                        <td id="detail-sow-number"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">耳标号：</td>
+                                        <td id="detail-ear-tag"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">下料器号：</td>
+                                        <td id="detail-feeder-number"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">圈舍位置：</td>
+                                        <td id="detail-pen-location"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">当日采食情况</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <canvas id="feedingPieChart" width="200" height="200"></canvas>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <td class="fw-bold">早餐采食量：</td>
+                                                <td id="detail-breakfast">5.2 kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">午餐采食量：</td>
+                                                <td id="detail-lunch">6.8 kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">晚餐采食量：</td>
+                                                <td id="detail-dinner">6.2 kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">总采食量：</td>
+                                                <td id="detail-total">18.2 kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">剩余量：</td>
+                                                <td id="detail-remaining">0.3 kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">采食状态：</td>
+                                                <td id="detail-status"><span class="badge bg-success">正常</span></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">近一周采食记录</h5>
+                        <canvas id="feedingHistoryChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">导出数据</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 查看详情
+    function showFeedingDetail(sowNumber, earTag, feederNumber) {
+        // 设置基本信息
+        document.getElementById('detail-sow-number').textContent = sowNumber;
+        document.getElementById('detail-ear-tag').textContent = earTag;
+        document.getElementById('detail-feeder-number').textContent = feederNumber;
+        
+        // 根据母猪号获取不同的数据
+        let breakfast = 0, lunch = 0, dinner = 0, remaining = 0;
+        let penLocation = '';
+        let status = '';
+        let statusClass = '';
+        
+        // 模拟从后端获取数据的逻辑，实际应用中应该通过AJAX从后端获取
+        switch(sowNumber) {
+            case 'N00185':
+                breakfast = 5.2;
+                lunch = 6.8;
+                dinner = 6.2;
+                remaining = 0.3;
+                penLocation = '圈舍1-A区';
+                status = '正常';
+                statusClass = 'bg-success';
+                break;
+            case 'N00192':
+                breakfast = 4.8;
+                lunch = 5.5;
+                dinner = 5.0;
+                remaining = 0.6;
+                penLocation = '圈舍2-B区';
+                status = '正常';
+                statusClass = 'bg-success';
+                break;
+            case 'N00203':
+                breakfast = 3.5;
+                lunch = 4.2;
+                dinner = 3.8;
+                remaining = 0.9;
+                penLocation = '圈舍1-C区';
+                status = '正常';
+                statusClass = 'bg-success';
+                break;
+            case 'N00215':
+                breakfast = 4.2;
+                lunch = 5.1;
+                dinner = 4.8;
+                remaining = 0.4;
+                penLocation = '圈舍3-A区';
+                status = '正常';
+                statusClass = 'bg-success';
+                break;
+            case 'N00221':
+                breakfast = 2.1;
+                lunch = 2.8;
+                dinner = 2.5;
+                remaining = 3.2;
+                penLocation = '圈舍2-A区';
+                status = '异常';
+                statusClass = 'bg-danger';
+                break;
+            case 'N00237':
+                breakfast = 4.5;
+                lunch = 4.8;
+                dinner = 4.6;
+                remaining = 0.5;
+                penLocation = '圈舍3-B区';
+                status = '正常';
+                statusClass = 'bg-success';
+                break;
+            case 'N00242':
+                breakfast = 4.0;
+                lunch = 4.3;
+                dinner = 4.2;
+                remaining = 0.8;
+                penLocation = '圈舍1-D区';
+                status = '正常';
+                statusClass = 'bg-success';
+                break;
+            case 'N00255':
+                breakfast = 3.2;
+                lunch = 3.5;
+                dinner = 3.0;
+                remaining = 1.8;
+                penLocation = '圈舍4-A区';
+                status = '偏低';
+                statusClass = 'bg-warning';
+                break;
+            case 'N00267':
+                breakfast = 3.8;
+                lunch = 4.2;
+                dinner = 4.0;
+                remaining = 0.5;
+                penLocation = '圈舍4-B区';
+                status = '正常';
+                statusClass = 'bg-success';
+                break;
+            case 'N00278':
+                breakfast = 4.2;
+                lunch = 4.5;
+                dinner = 4.3;
+                remaining = 0.4;
+                penLocation = '圈舍5-A区';
+                status = '正常';
+                statusClass = 'bg-success';
+                break;
+            default:
+                breakfast = 4.0;
+                lunch = 4.0;
+                dinner = 4.0;
+                remaining = 0.5;
+                penLocation = '未知';
+                status = '正常';
+                statusClass = 'bg-success';
+        }
+        
+        const total = breakfast + lunch + dinner;
+        
+        // 更新UI
+        document.getElementById('detail-pen-location').textContent = penLocation;
+        document.getElementById('detail-breakfast').textContent = `${breakfast} kg`;
+        document.getElementById('detail-lunch').textContent = `${lunch} kg`;
+        document.getElementById('detail-dinner').textContent = `${dinner} kg`;
+        document.getElementById('detail-total').textContent = `${total} kg`;
+        document.getElementById('detail-remaining').textContent = `${remaining} kg`;
+        document.getElementById('detail-status').innerHTML = `<span class="badge ${statusClass}">${status}</span>`;
+        
+        // 生成历史数据（随机生成，实际应用中应从后端获取）
+        const historyData = [];
+        for (let i = 0; i < 7; i++) {
+            // 基于当天总量上下浮动20%
+            const baseAmount = total;
+            const variance = baseAmount * 0.2; // 20%的上下浮动
+            historyData.push(+(baseAmount - variance + Math.random() * variance * 2).toFixed(1));
+        }
+        
+        // 创建饼图
+        const pieCtx = document.getElementById('feedingPieChart').getContext('2d');
+        // 清除旧的图表实例，避免重叠
+        if (window.pieChart) {
+            window.pieChart.destroy();
+        }
+        window.pieChart = new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: ['早餐', '午餐', '晚餐'],
+                datasets: [{
+                    data: [breakfast, lunch, dinner],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: '采食分布'
+                    }
+                }
+            }
+        });
+        
+        // 创建历史记录图表
+        const historyCtx = document.getElementById('feedingHistoryChart').getContext('2d');
+        // 清除旧的图表实例，避免重叠
+        if (window.historyChart) {
+            window.historyChart.destroy();
+        }
+        window.historyChart = new Chart(historyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['6天前', '5天前', '4天前', '3天前', '2天前', '1天前', '今日'],
+                datasets: [{
+                    label: '总采食量(kg)',
+                    data: historyData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // 显示模态框
+        const modal = new bootstrap.Modal(document.getElementById('feedingDetailModal'));
+        modal.show();
+    }
+    
+    // 页面加载完成后，为所有详情按钮添加点击事件
+    document.addEventListener('DOMContentLoaded', function() {
+        // 根据需要初始化页面数据
+        console.log('采食信息页面加载完成');
+    });
+</script>
 {% endblock %} 
