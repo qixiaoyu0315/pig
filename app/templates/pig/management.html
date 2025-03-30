@@ -194,6 +194,7 @@
                                 <th style="width: 80px;">胎次</th>
                                 <th style="width: 80px;">品种</th>
                                 <th style="width: 80px;">体重(kg)</th>
+                                <th style="width: 80px;">背膘(mm)</th>
                                 <th style="width: 90px;">状态</th>
                                 <th style="width: 90px;">健康状态</th>
                                 <th style="width: 100px;">所在猪舍</th>
@@ -211,6 +212,7 @@
                                     <td>{{ pig.parity }}</td>
                                     <td>{{ pig.breed }}</td>
                                     <td>{{ "%.1f"|format(pig.weight) }}</td>
+                                    <td>{{ "%.1f"|format(pig.backfat_thickness) if pig.backfat_thickness else '-' }}</td>
                                     <td><span class="badge {{ pig.status|status_class }}">{{ pig.status }}</span></td>
                                     <td><span class="badge {{ pig.health_status|health_status_class }}">{{ pig.health_status }}</span></td>
                                     <td>{{ pig.pen.pen_number if pig.pen else "-" }}</td>
@@ -878,7 +880,7 @@
                 document.getElementById('viewBirthDate').textContent = data.birth_date || '-';
                 document.getElementById('viewBreed').textContent = data.breed || '-';
                 document.getElementById('viewWeight').textContent = data.weight ? `${parseFloat(data.weight).toFixed(1)} kg` : '-';
-                document.getElementById('viewBackfatThickness').textContent = data.backfat_thickness ? `${data.backfat_thickness} mm` : '-';
+                document.getElementById('viewBackfatThickness').textContent = data.backfat_thickness ? `${parseFloat(data.backfat_thickness).toFixed(1)} mm` : '-';
                 document.getElementById('viewNotes').textContent = data.notes || '-';
                 
                 document.getElementById('viewStatus').textContent = data.status || '-';
