@@ -2,6 +2,16 @@
 
 {% block title %}首页 - 母猪管理系统{% endblock %}
 
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+    .chart-container {
+        width: 100%;
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-md-12 mb-4">
@@ -9,6 +19,53 @@
             <div class="card-body">
                 <h4 class="card-title">欢迎使用母猪管理系统</h4>
                 <p class="card-text">本系统用于帮助养猪场管理人员高效地管理母猪繁育、饲养和健康状况。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 图表展示区域 -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span>近7天饲料消耗趋势</span>
+            </div>
+            <div class="card-body">
+                <div id="feedChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span>猪只状态分布</span>
+            </div>
+            <div class="card-body">
+                <div id="statusChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span>背膘厚度分布</span>
+            </div>
+            <div class="card-body">
+                <div id="backfatChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span>近24小时环境数据</span>
+            </div>
+            <div class="card-body">
+                <div id="environmentChart" class="chart-container"></div>
             </div>
         </div>
     </div>
@@ -187,4 +244,275 @@
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+    // 图表初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. 近7天饲料消耗趋势图
+        initFeedChart();
+        
+        // 2. 猪只状态分布饼图
+        initStatusChart();
+        
+        // 3. 背膘厚度分布柱状图
+        initBackfatChart();
+        
+        // 4. 环境数据折线图
+        initEnvironmentChart();
+    });
+    
+    // 初始化饲料消耗趋势图
+    function initFeedChart() {
+        var feedChart = echarts.init(document.getElementById('feedChart'));
+        
+        var dates = [];
+        var values = [];
+        
+        {% for item in feed_chart_data %}
+            dates.push('{{ item.date }}');
+            values.push({{ item.value }});
+        {% endfor %}
+        
+        var option = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: dates
+            },
+            yAxis: {
+                type: 'value',
+                name: '饲料(kg)'
+            },
+            series: [{
+                name: '饲料消耗',
+                type: 'line',
+                smooth: true,
+                data: values,
+                areaStyle: {
+                    opacity: 0.3
+                },
+                itemStyle: {
+                    color: '#0d6efd'
+                }
+            }]
+        };
+        
+        feedChart.setOption(option);
+        
+        // 窗口大小变化时，重新调整图表大小
+        window.addEventListener('resize', function() {
+            feedChart.resize();
+        });
+    }
+    
+    // 初始化猪只状态分布饼图
+    function initStatusChart() {
+        var statusChart = echarts.init(document.getElementById('statusChart'));
+        
+        var data = [];
+        {% for item in status_chart_data %}
+            if ({{ item.value }} > 0) {
+                data.push({
+                    name: '{{ item.name }}',
+                    value: {{ item.value }}
+                });
+            }
+        {% endfor %}
+        
+        var option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c} ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                right: 10,
+                top: 'center',
+                data: data.map(function(item) { return item.name; })
+            },
+            series: [{
+                name: '猪只状态',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                center: ['40%', '50%'],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                    borderRadius: 10,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                },
+                label: {
+                    show: false,
+                    position: 'center'
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '18',
+                        fontWeight: 'bold'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: data
+            }]
+        };
+        
+        statusChart.setOption(option);
+        
+        // 窗口大小变化时，重新调整图表大小
+        window.addEventListener('resize', function() {
+            statusChart.resize();
+        });
+    }
+    
+    // 初始化背膘厚度分布柱状图
+    function initBackfatChart() {
+        var backfatChart = echarts.init(document.getElementById('backfatChart'));
+        
+        var ranges = [];
+        var counts = [];
+        
+        {% for item in backfat_chart_data %}
+            ranges.push('{{ item.range }}');
+            counts.push({{ item.count }});
+        {% endfor %}
+        
+        var option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ranges,
+                axisLabel: {
+                    interval: 0,
+                    rotate: 30
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: '猪只数量'
+            },
+            series: [{
+                name: '猪只数量',
+                type: 'bar',
+                data: counts,
+                itemStyle: {
+                    color: '#6f42c1'
+                }
+            }]
+        };
+        
+        backfatChart.setOption(option);
+        
+        // 窗口大小变化时，重新调整图表大小
+        window.addEventListener('resize', function() {
+            backfatChart.resize();
+        });
+    }
+    
+    // 初始化环境数据折线图
+    function initEnvironmentChart() {
+        var envChart = echarts.init(document.getElementById('environmentChart'));
+        
+        var times = [];
+        var temperatures = [];
+        var humidities = [];
+        
+        {% for item in env_chart_data %}
+            times.push('{{ item.time }}');
+            temperatures.push({{ item.temperature }});
+            humidities.push({{ item.humidity }});
+        {% endfor %}
+        
+        var option = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['温度', '湿度']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: times,
+                axisLabel: {
+                    interval: Math.floor(times.length / 8),
+                    rotate: 30
+                }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: '温度(°C)',
+                    position: 'left'
+                },
+                {
+                    type: 'value',
+                    name: '湿度(%)',
+                    position: 'right',
+                    min: 0,
+                    max: 100
+                }
+            ],
+            series: [
+                {
+                    name: '温度',
+                    type: 'line',
+                    smooth: true,
+                    data: temperatures,
+                    itemStyle: {
+                        color: '#dc3545'
+                    }
+                },
+                {
+                    name: '湿度',
+                    type: 'line',
+                    smooth: true,
+                    yAxisIndex: 1,
+                    data: humidities,
+                    itemStyle: {
+                        color: '#0dcaf0'
+                    }
+                }
+            ]
+        };
+        
+        envChart.setOption(option);
+        
+        // 窗口大小变化时，重新调整图表大小
+        window.addEventListener('resize', function() {
+            envChart.resize();
+        });
+    }
+</script>
+{% endblock %}
+
 {% endblock %} 

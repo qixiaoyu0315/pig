@@ -6,7 +6,7 @@ from sqlalchemy import func, desc
 from starlette import status
 import datetime
 
-from app.models.database import get_db, Pig, FeedingRecord, HealthRecord, Alert
+from app.models.database import get_db, Pig, FeedingRecord, HealthRecord, Alert, EnvironmentRecord
 from app.routes.auth import get_current_user
 
 router = APIRouter(tags=["home"])
@@ -101,6 +101,76 @@ async def home_page(request: Request, db: Session = Depends(get_db), user = Depe
     # 按时间排序并取前5条
     recent_activities = sorted(recent_activities, key=lambda x: x["time"], reverse=True)[:5]
     
+    # 为图表准备数据
+    # 1. 近7天饲料消耗数据
+    feed_chart_data = []
+    for i in range(6, -1, -1):
+        date = today - datetime.timedelta(days=i)
+        next_date = date + datetime.timedelta(days=1)
+        date_str = date.strftime("%m-%d")
+        
+        daily_feed = db.query(func.sum(FeedingRecord.feed_amount)).filter(
+            FeedingRecord.feed_time >= date,
+            FeedingRecord.feed_time < next_date
+        ).scalar() or 0
+        
+        feed_chart_data.append({
+            "date": date_str,
+            "value": round(daily_feed, 1)
+        })
+    
+    # 2. 背膘厚度分布
+    backfat_ranges = [
+        {"min": 0, "max": 10, "label": "0-10mm"},
+        {"min": 10, "max": 15, "label": "10-15mm"},
+        {"min": 15, "max": 20, "label": "15-20mm"},
+        {"min": 20, "max": 25, "label": "20-25mm"},
+        {"min": 25, "max": 100, "label": ">25mm"}
+    ]
+    
+    backfat_chart_data = []
+    for range_info in backfat_ranges:
+        if range_info["max"] == 100:  # 最后一个区间
+            count = db.query(func.count(Pig.id)).filter(
+                Pig.backfat_thickness >= range_info["min"]
+            ).scalar() or 0
+        else:
+            count = db.query(func.count(Pig.id)).filter(
+                Pig.backfat_thickness >= range_info["min"],
+                Pig.backfat_thickness < range_info["max"]
+            ).scalar() or 0
+        
+        backfat_chart_data.append({
+            "range": range_info["label"],
+            "count": count
+        })
+    
+    # 3. 猪只状态分布饼图数据
+    status_chart_data = [
+        {"name": "妊娠", "value": pregnant_pigs},
+        {"name": "哺乳", "value": nursing_pigs},
+        {"name": "休息", "value": empty_pigs},
+        {"name": "正常", "value": db.query(func.count(Pig.id)).filter(Pig.status == "正常").scalar() or 0},
+        {"name": "分娩", "value": db.query(func.count(Pig.id)).filter(Pig.status == "分娩").scalar() or 0},
+        {"name": "治疗", "value": db.query(func.count(Pig.id)).filter(Pig.status == "治疗").scalar() or 0},
+        {"name": "淘汰", "value": db.query(func.count(Pig.id)).filter(Pig.status == "淘汰").scalar() or 0}
+    ]
+    
+    # 4. 获取猪舍环境最近24小时的温度湿度数据
+    yesterday = today - datetime.timedelta(days=1)
+    env_records = db.query(EnvironmentRecord).filter(
+        EnvironmentRecord.record_time >= yesterday
+    ).order_by(EnvironmentRecord.record_time).all()
+    
+    env_chart_data = []
+    for record in env_records:
+        time_str = record.record_time.strftime("%H:%M")
+        env_chart_data.append({
+            "time": time_str,
+            "temperature": record.temperature,
+            "humidity": record.humidity
+        })
+    
     return templates.TemplateResponse("home.html", {
         "request": request, 
         "user": user,
@@ -118,5 +188,10 @@ async def home_page(request: Request, db: Session = Depends(get_db), user = Depe
         "month_feed": month_feed,
         "remaining_feed": remaining_feed,
         "recent_alerts": recent_alerts,
-        "recent_activities": recent_activities
+        "recent_activities": recent_activities,
+        # 图表数据
+        "feed_chart_data": feed_chart_data,
+        "backfat_chart_data": backfat_chart_data,
+        "status_chart_data": status_chart_data,
+        "env_chart_data": env_chart_data
     })
