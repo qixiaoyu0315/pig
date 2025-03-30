@@ -89,11 +89,6 @@ python run.py
 - **密码**: password
 
 ## 项目结构
-- FastAPI - 后端框架
-- SQLAlchemy - ORM
-- SQLite - 数据库
-- Bootstrap 5 - 前端框架
-- Jinja2 - 模板引擎
 ```
 app/
 ├── __init__.py
