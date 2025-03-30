@@ -191,11 +191,11 @@
                     <table class="table table-hover table-bordered mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th width="10%">耳标号</th>
-                                <th width="8%">生日</th>
+                                <th width="8%">耳标号</th>
                                 <th width="8%">品种</th>
                                 <th width="8%">猪圈</th>
                                 <th width="8%">状态</th>
+                                <th width="10%">妊娠天数</th>
                                 <th width="8%">健康状况</th>
                                 <th width="7%">体重(kg)</th>
                                 <th width="7%">背膘(mm)</th>
@@ -208,7 +208,6 @@
                                 {% for pig in pigs %}
                                 <tr>
                                     <td>{{ pig.ear_tag }}</td>
-                                    <td>{{ pig.birth_date.strftime('%Y-%m-%d') }}</td>
                                     <td>{{ pig.breed }}</td>
                                     <td>
                                         {% if pig.pen %}
@@ -218,26 +217,29 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <span class="badge
-                                            {% if pig.status == '妊娠' %}bg-info
-                                            {% elif pig.status == '哺乳' %}bg-success
-                                            {% elif pig.status == '分娩' %}bg-primary
-                                            {% elif pig.status == '休息' %}bg-warning
-                                            {% elif pig.status == '治疗' %}bg-danger
-                                            {% elif pig.status == '淘汰' %}bg-secondary
-                                            {% else %}bg-light text-dark
-                                            {% endif %}">
+                                        <span class="badge rounded-pill {{ pig.status | status_class }}">
                                             {{ pig.status }}
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge
-                                            {% if pig.health_status == '健康' %}bg-success
-                                            {% elif pig.health_status == '待观察' %}bg-warning
-                                            {% elif pig.health_status == '治疗中' %}bg-danger
-                                            {% elif pig.health_status == '隔离中' %}bg-dark
-                                            {% else %}bg-light text-dark
-                                            {% endif %}">
+                                        {% if pig.status == '妊娠' %}
+                                            {% if pig.pregnancy_days %}
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar progress-bar-striped bg-info" role="progressbar" 
+                                                        style="width: {{ (pig.pregnancy_days / 114 * 100)|round|int }}%;" 
+                                                        aria-valuenow="{{ pig.pregnancy_days }}" aria-valuemin="0" aria-valuemax="114">
+                                                        {{ pig.pregnancy_days }}天
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">未知</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill {{ pig.health_status | health_status_class }}">
                                             {{ pig.health_status }}
                                         </span>
                                     </td>
@@ -251,6 +253,15 @@
                                         <button class="btn btn-sm btn-outline-secondary" title="编辑信息" onclick="editPig('{{ pig.id }}')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
+                                        {% if pig.status == '妊娠' %}
+                                            <button class="btn btn-sm btn-outline-info" title="繁育记录" onclick="editBreedingRecord('{{ pig.id }}')">
+                                                <i class="bi bi-clipboard-data"></i>
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-outline-success" title="添加繁育记录" onclick="addBreedingRecord('{{ pig.id }}')">
+                                                <i class="bi bi-plus-circle"></i>
+                                            </button>
+                                        {% endif %}
                                         <button class="btn btn-sm btn-outline-danger" title="删除" onclick="deletePig('{{ pig.id }}')">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -259,7 +270,7 @@
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="9" class="text-center py-3">暂无数据{% if keyword or filter_status or filter_health_status or filter_pen_id %}，请尝试清除筛选条件{% endif %}</td>
+                                    <td colspan="10" class="text-center py-3">暂无数据{% if keyword or filter_status or filter_health_status or filter_pen_id %}，请尝试清除筛选条件{% endif %}</td>
                                 </tr>
                             {% endif %}
                         </tbody>
@@ -659,6 +670,121 @@
         </div>
     </div>
 </div>
+
+<!-- 添加繁育记录模态框 -->
+<div class="modal fade" id="addBreedingModal" tabindex="-1" aria-labelledby="addBreedingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBreedingModalLabel">添加繁育记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBreedingForm">
+                    <input type="hidden" id="add_breeding_pig_id" name="pig_id">
+                    <div class="mb-3">
+                        <label for="add_breeding_pig_info" class="form-label">母猪信息</label>
+                        <p id="add_breeding_pig_info" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="breeding_date" class="form-label">配种日期*</label>
+                        <input type="date" class="form-control" id="breeding_date" name="breeding_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expected_farrowing_date" class="form-label">预产期</label>
+                        <input type="date" class="form-control" id="expected_farrowing_date" name="expected_farrowing_date">
+                        <div class="form-text">默认为配种日期后114天</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="breeding_notes" class="form-label">备注</label>
+                        <textarea class="form-control" id="breeding_notes" name="notes" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveBreedingBtn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 更新繁育记录模态框 -->
+<div class="modal fade" id="updateBreedingModal" tabindex="-1" aria-labelledby="updateBreedingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateBreedingModalLabel">更新繁育记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateBreedingForm">
+                    <input type="hidden" id="update_breeding_record_id" name="record_id">
+                    <div class="mb-3">
+                        <label for="update_breeding_pig_info" class="form-label">母猪信息</label>
+                        <p id="update_breeding_pig_info" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="update_breeding_date" class="form-label">配种日期*</label>
+                            <input type="date" class="form-control" id="update_breeding_date" name="breeding_date" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="update_expected_farrowing_date" class="form-label">预产期*</label>
+                            <input type="date" class="form-control" id="update_expected_farrowing_date" name="expected_farrowing_date" readonly>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="update_pregnancy_days" class="form-label">已孕天数</label>
+                            <input type="text" class="form-control" id="update_pregnancy_days" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="breeding_status" class="form-label">记录状态*</label>
+                            <select class="form-select" id="breeding_status" name="status" required>
+                                <option value="进行中">进行中</option>
+                                <option value="已分娩">已分娩</option>
+                                <option value="已流产">已流产</option>
+                                <option value="已取消">已取消</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="farrowing_details" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="actual_farrowing_date" class="form-label">实际分娩日期*</label>
+                                <input type="date" class="form-control" id="actual_farrowing_date" name="actual_farrowing_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="total_born" class="form-label">总产仔数*</label>
+                                <input type="number" class="form-control" id="total_born" name="total_born" min="0">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="born_alive" class="form-label">活产数*</label>
+                                <input type="number" class="form-control" id="born_alive" name="born_alive" min="0">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="stillborn" class="form-label">死胎数</label>
+                                <input type="number" class="form-control" id="stillborn" name="stillborn" min="0">
+                                <div class="form-text">默认为总产仔数减去活产数</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_breeding_notes" class="form-label">备注</label>
+                        <textarea class="form-control" id="update_breeding_notes" name="notes" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="updateBreedingBtn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -938,6 +1064,193 @@
         // 设置默认入场日期为今天
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('entry_date').value = today;
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // 分页功能
+        function goToPage(page) {
+            document.getElementById('page_field').value = page;
+            document.getElementById('filterForm').submit();
+        }
+        window.goToPage = goToPage;
+        
+        // 添加繁育记录处理函数
+        function addBreedingRecord(pigId) {
+            // 获取猪只数据
+            fetch(`/pig/detail/${pigId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // 填充信息
+                    document.getElementById('add_breeding_pig_id').value = pigId;
+                    document.getElementById('add_breeding_pig_info').textContent = 
+                        `耳标: ${data.ear_tag}, 品种: ${data.breed}, 状态: ${data.status}`;
+                    
+                    // 默认设置今天日期
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('breeding_date').value = today;
+                    
+                    // 计算预产期 (今天 + 114天)
+                    const expectedDate = new Date();
+                    expectedDate.setDate(expectedDate.getDate() + 114);
+                    document.getElementById('expected_farrowing_date').value = 
+                        expectedDate.toISOString().split('T')[0];
+                    
+                    // 显示模态框
+                    const modal = new bootstrap.Modal(document.getElementById('addBreedingModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取猪只信息失败');
+                });
+        }
+        window.addBreedingRecord = addBreedingRecord;
+        
+        // 修改繁育记录处理函数
+        function editBreedingRecord(pigId) {
+            // 获取猪只和繁育记录数据
+            fetch(`/pig/detail/${pigId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // 获取最近的进行中的繁育记录
+                    const activeBreedingRecord = data.breeding_records.find(record => record.status === "进行中");
+                    
+                    if (!activeBreedingRecord) {
+                        alert('未找到进行中的繁育记录');
+                        return;
+                    }
+                    
+                    // 填充表单
+                    document.getElementById('update_breeding_record_id').value = activeBreedingRecord.id;
+                    document.getElementById('update_breeding_pig_info').textContent = 
+                        `耳标: ${data.ear_tag}, 品种: ${data.breed}, 状态: ${data.status}`;
+                    
+                    document.getElementById('update_breeding_date').value = activeBreedingRecord.breeding_date;
+                    document.getElementById('update_expected_farrowing_date').value = activeBreedingRecord.expected_farrowing_date;
+                    document.getElementById('update_pregnancy_days').value = `${data.pregnancy_days}天 (约${Math.round(data.pregnancy_days/114*100)}%)`;
+                    document.getElementById('breeding_status').value = activeBreedingRecord.status;
+                    document.getElementById('update_breeding_notes').value = activeBreedingRecord.notes || '';
+                    
+                    // 状态选择事件
+                    document.getElementById('breeding_status').addEventListener('change', function() {
+                        const status = this.value;
+                        const farrowingDetails = document.getElementById('farrowing_details');
+                        
+                        if (status === '已分娩') {
+                            farrowingDetails.style.display = 'block';
+                            // 设置默认分娩日期为今天
+                            document.getElementById('actual_farrowing_date').value = new Date().toISOString().split('T')[0];
+                        } else {
+                            farrowingDetails.style.display = 'none';
+                        }
+                    });
+                    
+                    // 显示模态框
+                    const modal = new bootstrap.Modal(document.getElementById('updateBreedingModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取繁育记录失败');
+                });
+        }
+        window.editBreedingRecord = editBreedingRecord;
+        
+        // 保存新增繁育记录
+        document.getElementById('saveBreedingBtn').addEventListener('click', function() {
+            const form = document.getElementById('addBreedingForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const formData = new FormData(form);
+            
+            fetch('/pig/breeding/add', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('繁育记录添加成功');
+                    window.location.reload();
+                } else {
+                    alert(`添加失败: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('添加繁育记录时出错');
+            });
+        });
+        
+        // 更新繁育记录
+        document.getElementById('updateBreedingBtn').addEventListener('click', function() {
+            const form = document.getElementById('updateBreedingForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const recordId = document.getElementById('update_breeding_record_id').value;
+            const formData = new FormData(form);
+            
+            fetch(`/pig/breeding/${recordId}`, {
+                method: 'PUT',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('繁育记录更新成功');
+                    window.location.reload();
+                } else {
+                    alert(`更新失败: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新繁育记录时出错');
+            });
+        });
+        
+        // 初始时检查状态，如果选择了已分娩则显示详情区域
+        document.getElementById('breeding_status').addEventListener('change', function() {
+            const status = this.value;
+            const farrowingDetails = document.getElementById('farrowing_details');
+            
+            if (status === '已分娩') {
+                farrowingDetails.style.display = 'block';
+            } else {
+                farrowingDetails.style.display = 'none';
+            }
+        });
+        
+        // 配种日期改变时自动更新预产期
+        document.getElementById('breeding_date').addEventListener('change', function() {
+            if (!this.value) return;
+            
+            const breedingDate = new Date(this.value);
+            const expectedDate = new Date(breedingDate);
+            expectedDate.setDate(breedingDate.getDate() + 114);
+            
+            document.getElementById('expected_farrowing_date').value = 
+                expectedDate.toISOString().split('T')[0];
+        });
+        
+        // 设置活产数变化时自动计算死胎数
+        document.getElementById('total_born').addEventListener('change', updateStillborn);
+        document.getElementById('born_alive').addEventListener('change', updateStillborn);
+        
+        function updateStillborn() {
+            const totalBorn = parseInt(document.getElementById('total_born').value) || 0;
+            const bornAlive = parseInt(document.getElementById('born_alive').value) || 0;
+            
+            if (totalBorn >= bornAlive) {
+                document.getElementById('stillborn').value = totalBorn - bornAlive;
+            }
+        }
     });
 </script>
 {% endblock %} 

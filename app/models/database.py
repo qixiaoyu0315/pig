@@ -93,6 +93,8 @@ class Pig(Base):
     health_status = Column(String(20), default="健康")
     entry_date = Column(DateTime, default=datetime.now)
     last_update = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    last_breeding_date = Column(DateTime, nullable=True)  # 最后配种日期
+    pregnancy_days = Column(Integer, nullable=True)  # 妊娠天数
     notes = Column(Text, nullable=True)
     
     # 关系
@@ -100,6 +102,22 @@ class Pig(Base):
     feeding_records = relationship("FeedingRecord", back_populates="pig")
     health_records = relationship("HealthRecord", back_populates="pig")
     breeding_records = relationship("BreedingRecord", back_populates="pig")
+    
+    @property
+    def current_pregnancy_days(self):
+        """计算当前妊娠天数"""
+        if self.status != "妊娠" or not self.last_breeding_date:
+            return None
+        delta = datetime.now() - self.last_breeding_date
+        return delta.days
+    
+    def update_pregnancy_days(self):
+        """更新妊娠天数"""
+        if self.status == "妊娠" and self.last_breeding_date:
+            delta = datetime.now() - self.last_breeding_date
+            self.pregnancy_days = delta.days
+        else:
+            self.pregnancy_days = None
 
 class FeedingRecord(Base):
     """喂食记录表"""
@@ -164,9 +182,40 @@ class BreedingRecord(Base):
     weaned = Column(Integer, nullable=True)
     weaning_date = Column(DateTime, nullable=True)
     notes = Column(Text, nullable=True)
+    status = Column(String(20), default="进行中")  # 进行中, 已分娩, 已流产, 已取消
     
     # 关系
     pig = relationship("Pig", back_populates="breeding_records")
+    
+    def update_pig_status(self, db_session):
+        """更新母猪状态和妊娠信息"""
+        if not self.pig:
+            return
+            
+        # 新增记录时
+        if self.status == "进行中":
+            self.pig.status = "妊娠"
+            self.pig.last_breeding_date = self.breeding_date
+            self.pig.update_pregnancy_days()
+            
+            # 预计分娩日期默认设置为配种日期+114天
+            if not self.expected_farrowing_date and self.breeding_date:
+                self.expected_farrowing_date = self.breeding_date + timedelta(days=114)
+                
+        # 已分娩
+        elif self.status == "已分娩":
+            self.pig.status = "哺乳"
+            self.pig.last_breeding_date = None
+            self.pig.pregnancy_days = None
+            
+        # 已流产或已取消
+        elif self.status in ["已流产", "已取消"]:
+            self.pig.status = "正常"
+            self.pig.last_breeding_date = None
+            self.pig.pregnancy_days = None
+            
+        db_session.add(self.pig)
+        db_session.commit()
 
 class EnvironmentRecord(Base):
     """猪舍环境记录表"""

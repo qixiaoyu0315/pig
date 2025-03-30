@@ -18,6 +18,43 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="app/templates")
 
+# 自定义过滤器：根据状态返回对应的Bootstrap样式类
+def status_class(status):
+    """根据母猪状态返回对应的Bootstrap样式类"""
+    status_map = {
+        "正常": "bg-success",
+        "妊娠": "bg-info",
+        "哺乳": "bg-primary",
+        "分娩": "bg-warning",
+        "休息": "bg-secondary",
+        "治疗": "bg-danger",
+        "淘汰": "bg-dark"
+    }
+    return status_map.get(status, "bg-light text-dark")
+
+# 自定义过滤器：根据健康状态返回对应的Bootstrap样式类
+def health_status_class(health_status):
+    """根据健康状态返回对应的Bootstrap样式类"""
+    health_map = {
+        "健康": "bg-success",
+        "待观察": "bg-warning",
+        "治疗中": "bg-danger",
+        "隔离中": "bg-dark"
+    }
+    return health_map.get(health_status, "bg-light text-dark")
+
+# 自定义过滤器：格式化妊娠天数显示
+def format_pregnancy_days(days):
+    """格式化妊娠天数显示"""
+    if days is None:
+        return ""
+    return f"{days}天"
+
+# 注册过滤器到Jinja2模板环境
+templates.env.filters["status_class"] = status_class
+templates.env.filters["health_status_class"] = health_status_class
+templates.env.filters["format_pregnancy_days"] = format_pregnancy_days
+
 @router.get("/management", response_class=HTMLResponse)
 async def pig_management(
     request: Request, 
@@ -122,6 +159,12 @@ async def get_pig_detail(pig_id: int, db: Session = Depends(get_db), user = Depe
         BreedingRecord.pig_id == pig_id
     ).order_by(BreedingRecord.breeding_date.desc()).all()
     
+    # 更新妊娠天数
+    if pig.status == "妊娠" and pig.last_breeding_date:
+        pig.update_pregnancy_days()
+        db.add(pig)
+        db.commit()
+    
     # 格式化日期和数据
     pig_data = {
         "id": pig.id,
@@ -137,6 +180,8 @@ async def get_pig_detail(pig_id: int, db: Session = Depends(get_db), user = Depe
         "pen": pig.pen.pen_number if pig.pen else None,
         "pen_id": pig.pen_id,
         "notes": pig.notes,
+        "last_breeding_date": pig.last_breeding_date.strftime("%Y-%m-%d") if pig.last_breeding_date else None,
+        "pregnancy_days": pig.pregnancy_days,
         "feeding_records": [
             {
                 "feed_time": record.feed_time.strftime("%Y-%m-%d %H:%M"),
@@ -157,6 +202,7 @@ async def get_pig_detail(pig_id: int, db: Session = Depends(get_db), user = Depe
         "breeding_records": [
             {
                 "breeding_date": record.breeding_date.strftime("%Y-%m-%d") if record.breeding_date else None,
+                "status": record.status,
                 "expected_farrowing_date": record.expected_farrowing_date.strftime("%Y-%m-%d") if record.expected_farrowing_date else None,
                 "actual_farrowing_date": record.actual_farrowing_date.strftime("%Y-%m-%d") if record.actual_farrowing_date else None,
                 "total_born": record.total_born,
@@ -610,4 +656,128 @@ async def control_interface(request: Request, user = Depends(get_current_user)):
         "request": request,
         "user": user,
         "page_title": "控制界面"
-    }) 
+    })
+
+# 新增API：添加繁育记录
+@router.post("/breeding/add", response_class=JSONResponse)
+async def add_breeding_record(
+    pig_id: int = Form(...),
+    breeding_date: str = Form(...),
+    expected_farrowing_date: Optional[str] = Form(None),
+    notes: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """添加新的繁育记录"""
+    # 查找母猪
+    pig = db.query(Pig).filter(Pig.id == pig_id).first()
+    if not pig:
+        return JSONResponse(
+            status_code=404,
+            content={"success": False, "message": "猪只不存在"}
+        )
+    
+    # 检查性别必须是母
+    if pig.gender != "母":
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "只有母猪才能添加繁育记录"}
+        )
+    
+    # 检查是否有未完成的繁育记录
+    existing_record = db.query(BreedingRecord).filter(
+        BreedingRecord.pig_id == pig_id,
+        BreedingRecord.status == "进行中"
+    ).first()
+    
+    if existing_record:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": "该母猪有未完成的繁育记录"}
+        )
+    
+    # 格式化日期
+    breeding_date_obj = datetime.datetime.strptime(breeding_date, "%Y-%m-%d")
+    expected_farrowing_date_obj = None
+    
+    if expected_farrowing_date:
+        expected_farrowing_date_obj = datetime.datetime.strptime(expected_farrowing_date, "%Y-%m-%d")
+    else:
+        # 默认114天
+        expected_farrowing_date_obj = breeding_date_obj + datetime.timedelta(days=114)
+    
+    # 创建新繁育记录
+    new_breeding = BreedingRecord(
+        pig_id=pig_id,
+        breeding_date=breeding_date_obj,
+        expected_farrowing_date=expected_farrowing_date_obj,
+        status="进行中",
+        notes=notes
+    )
+    
+    db.add(new_breeding)
+    db.flush()  # 获取新记录ID
+    
+    # 更新母猪状态
+    new_breeding.update_pig_status(db)
+    
+    return {"success": True, "message": "添加成功", "record_id": new_breeding.id}
+
+# 新增API：更新繁育记录
+@router.put("/breeding/{record_id}", response_class=JSONResponse)
+async def update_breeding_record(
+    record_id: int,
+    status: str = Form(...),  # 进行中, 已分娩, 已流产, 已取消
+    actual_farrowing_date: Optional[str] = Form(None),
+    total_born: Optional[int] = Form(None),
+    born_alive: Optional[int] = Form(None),
+    stillborn: Optional[int] = Form(None),
+    notes: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """更新繁育记录"""
+    # 查找繁育记录
+    breeding_record = db.query(BreedingRecord).filter(BreedingRecord.id == record_id).first()
+    if not breeding_record:
+        return JSONResponse(
+            status_code=404,
+            content={"success": False, "message": "繁育记录不存在"}
+        )
+    
+    # 更新状态
+    old_status = breeding_record.status
+    breeding_record.status = status
+    
+    # 已分娩状态需要额外信息
+    if status == "已分娩":
+        if not actual_farrowing_date:
+            return JSONResponse(
+                status_code=400,
+                content={"success": False, "message": "已分娩状态需要提供实际分娩日期"}
+            )
+        
+        if not total_born or not born_alive:
+            return JSONResponse(
+                status_code=400,
+                content={"success": False, "message": "已分娩状态需要提供产仔数量"}
+            )
+        
+        breeding_record.actual_farrowing_date = datetime.datetime.strptime(actual_farrowing_date, "%Y-%m-%d")
+        breeding_record.total_born = total_born
+        breeding_record.born_alive = born_alive
+        breeding_record.stillborn = stillborn if stillborn is not None else (total_born - born_alive)
+    
+    # 更新备注
+    if notes:
+        breeding_record.notes = notes
+    
+    db.add(breeding_record)
+    
+    # 只有当状态变更时才更新母猪状态
+    if old_status != status:
+        breeding_record.update_pig_status(db)
+    else:
+        db.commit()
+    
+    return {"success": True, "message": "更新成功"} 
