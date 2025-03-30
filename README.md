@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 3. 运行应用
 ```
-uvicorn app.main:app --reload
+python run.py
 ```
 
 4. 打开浏览器访问 `http://localhost:8000`
