@@ -87,6 +87,7 @@ class Pig(Base):
     breed = Column(String(50))  # 品种
     gender = Column(String(10))  # 性别
     weight = Column(Float)
+    backfat_thickness = Column(Float, nullable=True)  # 背膘厚度(mm)
     status = Column(String(20))
     pen_id = Column(Integer, ForeignKey("pig_pens.id"))
     health_status = Column(String(20), default="健康")
@@ -286,6 +287,7 @@ def seed_data():
                 breed=random.choice(breeds),
                 gender="母",  # 母猪
                 weight=random.uniform(150.0, 250.0),
+                backfat_thickness=random.uniform(10.0, 25.0),  # 随机背膘厚度(mm)
                 status=random.choice(statuses),
                 pen_id=pen.id,
                 health_status=random.choice(health_statuses),

@@ -130,6 +130,7 @@ async def get_pig_detail(pig_id: int, db: Session = Depends(get_db), user = Depe
         "breed": pig.breed,
         "gender": pig.gender,
         "weight": pig.weight,
+        "backfat_thickness": pig.backfat_thickness,
         "status": pig.status,
         "health_status": pig.health_status,
         "entry_date": pig.entry_date.strftime("%Y-%m-%d") if pig.entry_date else None,
@@ -174,6 +175,7 @@ async def add_pig(
     breed: str = Form(...),
     gender: str = Form("母"),
     weight: float = Form(...),
+    backfat_thickness: Optional[float] = Form(None),
     status: str = Form(...),
     health_status: str = Form(...),
     pen_id: int = Form(...),
@@ -217,6 +219,7 @@ async def add_pig(
         breed=breed,
         gender=gender,
         weight=weight,
+        backfat_thickness=backfat_thickness,
         status=status,
         health_status=health_status,
         pen_id=pen_id,
@@ -246,6 +249,7 @@ async def update_pig(
     birth_date: str = Form(...),
     breed: str = Form(...),
     weight: float = Form(...),
+    backfat_thickness: Optional[float] = Form(None),
     status: str = Form(...),
     health_status: str = Form(...),
     pen_id: int = Form(...),
@@ -316,6 +320,7 @@ async def update_pig(
     pig.birth_date = birth_date_obj
     pig.breed = breed
     pig.weight = weight
+    pig.backfat_thickness = backfat_thickness
     pig.status = status
     pig.health_status = health_status
     pig.pen_id = pen_id

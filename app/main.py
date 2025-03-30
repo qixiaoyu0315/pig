@@ -4,7 +4,8 @@ from fastapi.templating import Jinja2Templates
 import os
 
 from app.routes import home, auth, pig
-from app.db_init import initialize_database
+from app.db_init import initialize_database, update_pig_backfat
+from app.db_migrate import migrate_database
 
 app = FastAPI(
     title="母猪管理系统",
@@ -32,7 +33,11 @@ async def startup_event():
         # 初始化数据库并填充示例数据
         initialize_database()
     else:
-        print("数据库已存在，跳过初始化")
+        print("数据库已存在，执行迁移...")
+        # 迁移数据库结构
+        migrate_database()
+        # 确保所有猪只都有背膘厚度数据
+        update_pig_backfat()
 
 if __name__ == "__main__":
     import uvicorn

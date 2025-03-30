@@ -192,14 +192,15 @@
                         <thead class="table-light">
                             <tr>
                                 <th width="10%">耳标号</th>
-                                <th width="10%">生日</th>
-                                <th width="10%">品种</th>
-                                <th width="10%">猪圈</th>
-                                <th width="10%">状态</th>
-                                <th width="10%">健康状况</th>
-                                <th width="8%">体重(kg)</th>
-                                <th width="12%">入场日期</th>
-                                <th width="20%">操作</th>
+                                <th width="8%">生日</th>
+                                <th width="8%">品种</th>
+                                <th width="8%">猪圈</th>
+                                <th width="8%">状态</th>
+                                <th width="8%">健康状况</th>
+                                <th width="7%">体重(kg)</th>
+                                <th width="7%">背膘(mm)</th>
+                                <th width="10%">入场日期</th>
+                                <th width="15%">操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -241,6 +242,7 @@
                                         </span>
                                     </td>
                                     <td>{{ pig.weight|round(1) }}</td>
+                                    <td>{{ pig.backfat_thickness|round(1) }}</td>
                                     <td>{{ pig.entry_date.strftime('%Y-%m-%d') }}</td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-primary" title="查看详情" onclick="viewPigDetails('{{ pig.id }}')">
@@ -396,6 +398,12 @@
                             <input type="number" step="0.1" min="0" class="form-control" id="weight" name="weight" required>
                         </div>
                         <div class="col-md-6">
+                            <label for="backfat_thickness" class="form-label">背膘厚度(mm)</label>
+                            <input type="number" step="0.1" min="0" class="form-control" id="backfat_thickness" name="backfat_thickness">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="entry_date" class="form-label">入场日期*</label>
                             <input type="date" class="form-control" id="entry_date" name="entry_date" required>
                         </div>
@@ -488,6 +496,12 @@
                             <input type="number" step="0.1" min="0" class="form-control" id="edit_weight" name="weight" required>
                         </div>
                         <div class="col-md-6">
+                            <label for="edit_backfat_thickness" class="form-label">背膘厚度(mm)</label>
+                            <input type="number" step="0.1" min="0" class="form-control" id="edit_backfat_thickness" name="backfat_thickness">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="edit_entry_date" class="form-label">入场日期*</label>
                             <input type="date" class="form-control" id="edit_entry_date" name="entry_date" required>
                         </div>
@@ -536,6 +550,10 @@
                                     <tr>
                                         <th class="bg-light">体重(kg)</th>
                                         <td id="view_weight"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">背膘厚度(mm)</th>
+                                        <td id="view_backfat_thickness"></td>
                                     </tr>
                                     <tr>
                                         <th class="bg-light">入场日期</th>
@@ -695,6 +713,7 @@
                 document.getElementById('view_birth_date').textContent = data.birth_date;
                 document.getElementById('view_breed').textContent = data.breed;
                 document.getElementById('view_weight').textContent = data.weight;
+                document.getElementById('view_backfat_thickness').textContent = data.backfat_thickness || '-';
                 document.getElementById('view_entry_date').textContent = data.entry_date;
                 document.getElementById('view_status').textContent = data.status;
                 document.getElementById('view_health_status').textContent = data.health_status;
@@ -798,6 +817,7 @@
                 document.getElementById('edit_birth_date').value = data.birth_date;
                 document.getElementById('edit_breed').value = data.breed;
                 document.getElementById('edit_weight').value = data.weight;
+                document.getElementById('edit_backfat_thickness').value = data.backfat_thickness || '';
                 document.getElementById('edit_status').value = data.status;
                 document.getElementById('edit_health_status').value = data.health_status;
                 document.getElementById('edit_pen_id').value = data.pen_id;
